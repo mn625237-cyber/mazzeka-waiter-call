@@ -1,2 +1,837 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mazzeka — طباعة QR</title><link rel="icon" href="assets/mazzeka-logo.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap" rel="stylesheet"><style>:root{--red:#ff1738;--bg:#060607}*{box-sizing:border-box}body{margin:0;background:#111;color:#fff;font-family:Cairo,sans-serif}.toolbar{position:sticky;top:0;z-index:2;background:#09090a;padding:14px;display:flex;gap:10px;align-items:center;justify-content:center}.toolbar button{border:0;border-radius:10px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer}.print{background:#ff1738;color:#fff}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px;max-width:1200px;margin:auto}.card{background:#050506;border:1px solid #282327;border-radius:16px;padding:18px;text-align:center;break-inside:avoid}.logo{width:160px;max-width:100%;filter:drop-shadow(0 0 8px rgba(255,23,56,.4));mix-blend-mode:screen}.qr{margin:14px auto;width:180px;height:180px}.num{font-size:30px;font-weight:800}.hint{font-size:11px;color:#999;margin-top:2px}@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.grid{grid-template-columns:1fr}}@media print{body{background:#fff;color:#000}.toolbar{display:none}.grid{grid-template-columns:repeat(3,1fr);gap:8mm;padding:8mm}.card{background:#fff;color:#000;border:1px solid #bbb}.hint{color:#555}.logo{filter:none}.qr{width:42mm;height:42mm}}
-</style></head><body><div class="toolbar"><strong>Mazzeka · QR الترابيزات</strong><button class="print" onclick="window.print()">🖨️ طباعة</button></div><main class="grid" id="grid"></main><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script type="module">import {APP_CONFIG} from './config.js';const base=new URL('./',location.href);const grid=document.getElementById('grid');for(let n=1;n<=APP_CONFIG.maxTables;n++){const card=document.createElement('article');card.className='card';const logo=document.createElement('img');logo.className='logo';logo.src='assets/mazzeka-logo.png';logo.alt='Mazzeka';const qr=document.createElement('div');qr.className='qr';const num=document.createElement('div');num.className='num';num.textContent=`ترابيزة ${n}`;const hint=document.createElement('div');hint.className='hint';hint.textContent='امسح QR لطلب الويتر';card.append(logo,qr,num,hint);grid.appendChild(card);new QRCode(qr,{text:new URL(`index.html?table=${n}`,base).href,width:180,height:180,colorDark:'#111111',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050506">
+
+  <title>Mazzeka — طباعة QR الترابيزات</title>
+
+  <link rel="icon" href="assets/mazzeka-logo.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+
+    :root{
+      --red:#ff1738;
+      --red-dark:#c90e2b;
+      --bg:#080809;
+      --line:#30282b;
+      --text:#fff;
+      --muted:#aaa3a5;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html,
+    body{
+      margin:0;
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Cairo,system-ui,sans-serif;
+    }
+
+    body{
+      padding-bottom:30px;
+    }
+
+
+    /* =========================
+       TOOLBAR
+       ========================= */
+
+    .toolbar{
+      position:sticky;
+      top:0;
+      z-index:10;
+
+      background:rgba(8,8,9,.96);
+
+      backdrop-filter:blur(12px);
+
+      border-bottom:1px solid var(--line);
+
+      padding:12px 16px;
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:center;
+
+      gap:12px;
+    }
+
+    .toolbar-title{
+      font-weight:800;
+    }
+
+    .toolbar button{
+      border:0;
+
+      border-radius:11px;
+
+      padding:10px 18px;
+
+      font:inherit;
+
+      font-weight:800;
+
+      cursor:pointer;
+    }
+
+    .print{
+      background:
+        linear-gradient(
+          180deg,
+          #ff314d,
+          #d90d2c
+        );
+
+      color:#fff;
+
+      box-shadow:
+        0 5px 18px
+        rgba(255,23,56,.2);
+    }
+
+
+    /* =========================
+       GRID
+       ========================= */
+
+    .grid{
+
+      display:grid;
+
+      grid-template-columns:
+        repeat(3,minmax(0,1fr));
+
+      gap:14px;
+
+      padding:20px;
+
+      max-width:1200px;
+
+      margin:auto;
+    }
+
+
+    /* =========================
+       CARD
+       ========================= */
+
+    .card{
+
+      background:
+        linear-gradient(
+          180deg,
+          #111114,
+          #080809
+        );
+
+      border:1px solid #30282b;
+
+      border-radius:18px;
+
+      padding:18px 14px 16px;
+
+      text-align:center;
+
+      break-inside:avoid;
+
+      page-break-inside:avoid;
+
+      display:flex;
+
+      flex-direction:column;
+
+      align-items:center;
+
+      justify-content:center;
+
+      min-height:300px;
+    }
+
+
+    /* =========================
+       LOGO
+       ========================= */
+
+    .logo{
+
+      width:145px;
+
+      height:auto;
+
+      max-width:82%;
+
+      display:block;
+
+      object-fit:contain;
+
+      margin-bottom:5px;
+
+      filter:
+        drop-shadow(
+          0 0 8px
+          rgba(255,23,56,.4)
+        );
+
+      mix-blend-mode:screen;
+    }
+
+
+    .table-label{
+
+      font-size:12px;
+
+      color:var(--muted);
+
+      margin-top:2px;
+    }
+
+
+    .num{
+
+      font-size:27px;
+
+      font-weight:800;
+
+      line-height:1.15;
+
+      margin-top:1px;
+
+      color:#fff;
+    }
+
+
+    /* =========================
+       QR
+       ========================= */
+
+    .qr{
+
+      width:180px;
+
+      height:180px;
+
+      margin:
+        11px auto
+        9px;
+
+      display:grid;
+
+      place-items:center;
+
+      background:#fff;
+
+      padding:0;
+    }
+
+    .qr img{
+
+      display:block !important;
+
+      width:100% !important;
+
+      height:100% !important;
+    }
+
+
+    .hint{
+
+      font-size:11px;
+
+      color:#aaa;
+
+      margin-top:1px;
+    }
+
+
+    .brand-line{
+
+      width:48px;
+
+      height:3px;
+
+      background:var(--red);
+
+      border-radius:99px;
+
+      margin:
+        8px auto
+        0;
+    }
+
+
+    /* =========================
+       RESPONSIVE
+       ========================= */
+
+    @media(max-width:900px){
+
+      .grid{
+
+        grid-template-columns:
+          repeat(2,minmax(0,1fr));
+      }
+    }
+
+
+    @media(max-width:560px){
+
+      .grid{
+
+        grid-template-columns:1fr;
+
+        padding:14px;
+      }
+
+      .card{
+
+        min-height:0;
+      }
+
+      .toolbar{
+
+        justify-content:
+          space-between;
+      }
+
+      .toolbar-title{
+
+        font-size:13px;
+      }
+    }
+
+
+    /* =========================
+       PRINT
+       ========================= */
+
+    @media print{
+
+      @page{
+
+        size:A4 portrait;
+
+        margin:8mm;
+      }
+
+
+      html,
+      body{
+
+        background:#fff !important;
+
+        color:#000 !important;
+      }
+
+
+      body{
+
+        padding:0;
+      }
+
+
+      .toolbar{
+
+        display:none !important;
+      }
+
+
+      /*
+        A4
+        2 columns
+        3 rows
+        = 6 cards
+      */
+
+      .grid{
+
+        width:100%;
+
+        max-width:none;
+
+        display:grid;
+
+        grid-template-columns:
+          repeat(2,1fr);
+
+        grid-auto-rows:91mm;
+
+        gap:4mm;
+
+        padding:0;
+
+        margin:0;
+      }
+
+
+      .card{
+
+        width:100%;
+
+        height:91mm;
+
+        min-height:0;
+
+        background:#fff !important;
+
+        color:#000 !important;
+
+        border:
+          1.2px solid #222;
+
+        border-radius:3mm;
+
+        padding:
+          5mm
+          4mm
+          4mm;
+
+        box-shadow:none;
+
+        overflow:hidden;
+
+        break-inside:avoid;
+
+        page-break-inside:avoid;
+      }
+
+
+      /*
+        مهم:
+        لا نعتمد على الخلفية أو blend mode
+        أثناء الطباعة
+      */
+
+      .logo{
+
+        width:36mm;
+
+        max-width:70%;
+
+        height:auto;
+
+        display:block;
+
+        filter:none !important;
+
+        mix-blend-mode:normal !important;
+
+        margin-bottom:1mm;
+
+        -webkit-print-color-adjust:
+          exact;
+
+        print-color-adjust:exact;
+      }
+
+
+      .table-label{
+
+        font-size:9pt;
+
+        color:#555;
+
+        margin:0;
+      }
+
+
+      .num{
+
+        font-size:19pt;
+
+        color:#111;
+
+        margin:0;
+
+        line-height:1.15;
+      }
+
+
+      .qr{
+
+        width:48mm;
+
+        height:48mm;
+
+        margin:
+          3mm
+          auto
+          2.5mm;
+
+        padding:0;
+
+        background:#fff;
+      }
+
+
+      .qr img{
+
+        width:48mm !important;
+
+        height:48mm !important;
+
+        display:block !important;
+      }
+
+
+      .hint{
+
+        font-size:8pt;
+
+        color:#333;
+
+        margin:0;
+      }
+
+
+      .brand-line{
+
+        width:14mm;
+
+        height:.8mm;
+
+        background:#e31332;
+
+        margin:
+          2mm
+          auto
+          0;
+
+        -webkit-print-color-adjust:
+          exact;
+
+        print-color-adjust:exact;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+
+  <div class="toolbar">
+
+    <div class="toolbar-title">
+      Mazzeka · QR الترابيزات
+    </div>
+
+    <button
+      id="printButton"
+      class="print"
+      type="button"
+    >
+      🖨️ طباعة البطاقات
+    </button>
+
+  </div>
+
+
+  <main
+    class="grid"
+    id="grid"
+    aria-label="بطاقات QR الترابيزات"
+  ></main>
+
+
+  <!-- QR Generator -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
+  </script>
+
+
+  <script type="module">
+
+    import {
+      APP_CONFIG
+    } from './config.js';
+
+
+    const base =
+      new URL('./',location.href);
+
+
+    const grid =
+      document.getElementById('grid');
+
+
+    /*
+      ======================================
+      تحميل الشعار أولًا
+      ======================================
+    */
+
+    const logoReady =
+      new Promise((resolve)=>{
+
+        const img =
+          new Image();
+
+        img.onload =
+          ()=>resolve(true);
+
+        img.onerror =
+          ()=>resolve(false);
+
+        img.src =
+          new URL(
+            'assets/mazzeka-logo.png',
+            base
+          ).href;
+
+      });
+
+
+    /*
+      ======================================
+      إنشاء البطاقات
+      ======================================
+    */
+
+    async function buildCards(){
+
+      await logoReady;
+
+
+      for(
+        let n=1;
+        n<=APP_CONFIG.maxTables;
+        n++
+      ){
+
+        const card =
+          document.createElement(
+            'article'
+          );
+
+        card.className =
+          'card';
+
+
+        /*
+          الشعار
+        */
+
+        const logo =
+          document.createElement(
+            'img'
+          );
+
+        logo.className =
+          'logo';
+
+        logo.src =
+          new URL(
+            'assets/mazzeka-logo.png',
+            base
+          ).href;
+
+        logo.alt =
+          'Mazzeka';
+
+
+        /*
+          عنوان
+        */
+
+        const label =
+          document.createElement(
+            'div'
+          );
+
+        label.className =
+          'table-label';
+
+        label.textContent =
+          'ترابيزة رقم';
+
+
+        /*
+          الرقم
+        */
+
+        const num =
+          document.createElement(
+            'div'
+          );
+
+        num.className =
+          'num';
+
+        num.textContent =
+          n;
+
+
+        /*
+          QR
+        */
+
+        const qr =
+          document.createElement(
+            'div'
+          );
+
+        qr.className =
+          'qr';
+
+        qr.setAttribute(
+          'aria-label',
+          `QR ترابيزة ${n}`
+        );
+
+
+        /*
+          النص
+        */
+
+        const hint =
+          document.createElement(
+            'div'
+          );
+
+        hint.className =
+          'hint';
+
+        hint.textContent =
+          'امسح QR لطلب الويتر';
+
+
+        /*
+          الخط الأحمر
+        */
+
+        const line =
+          document.createElement(
+            'div'
+          );
+
+        line.className =
+          'brand-line';
+
+
+        /*
+          تركيب البطاقة
+        */
+
+        card.append(
+          logo,
+          label,
+          num,
+          qr,
+          hint,
+          line
+        );
+
+
+        grid.appendChild(
+          card
+        );
+
+
+        /*
+          رابط العميل
+
+          مثال:
+
+          ?table=17
+        */
+
+        const clientUrl =
+          new URL(
+            `index.html?table=${n}`,
+            base
+          ).href;
+
+
+        /*
+          QR Code
+        */
+
+        new QRCode(
+          qr,
+          {
+            text:clientUrl,
+
+            width:180,
+
+            height:180,
+
+            colorDark:
+              '#111111',
+
+            colorLight:
+              '#ffffff',
+
+            correctLevel:
+              QRCode.CorrectLevel.M
+          }
+        );
+
+      }
+
+    }
+
+
+    /*
+      تشغيل إنشاء البطاقات
+    */
+
+    buildCards();
+
+
+    /*
+      زر الطباعة
+    */
+
+    document
+      .getElementById(
+        'printButton'
+      )
+      .addEventListener(
+        'click',
+        async ()=>{
+
+          /*
+            نتأكد أن الصفحة انتهت
+            من تجهيز الصور والـQR
+          */
+
+          await logoReady;
+
+          /*
+            نعطي المتصفح لحظة
+            لإتمام الرسم
+          */
+
+          setTimeout(
+            ()=>{
+              window.print();
+            },
+            300
+          );
+
+        }
+      );
+
+  </script>
+
+</body>
+</html>
