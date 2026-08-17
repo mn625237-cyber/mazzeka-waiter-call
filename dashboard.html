@@ -1,17 +1,46 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
+
 <head>
+
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#050506">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<meta
+  name="theme-color"
+  content="#050506"
+>
+
 <title>Mazzeka — لوحة نداء الويتر</title>
 
-<link rel="icon" href="assets/mazzeka-logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link
+  rel="icon"
+  href="assets/mazzeka-logo.png"
+>
+
+<link
+  rel="preconnect"
+  href="https://fonts.googleapis.com"
+>
+
+<link
+  rel="preconnect"
+  href="https://fonts.gstatic.com"
+  crossorigin
+>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"
+  rel="stylesheet"
+>
+
 
 <style>
+
 :root{
   --bg:#050506;
   --panel:#0d0d10;
@@ -24,7 +53,9 @@
   --green:#21d47b
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box
+}
 
 html,body{
   margin:0;
@@ -34,7 +65,9 @@ html,body{
   font-family:Cairo,system-ui,sans-serif
 }
 
-body{min-height:100dvh}
+body{
+  min-height:100dvh
+}
 
 .shell{
   width:min(1250px,100%);
@@ -126,7 +159,9 @@ body{min-height:100dvh}
   box-shadow:0 0 0 3px rgba(255,23,56,.09)
 }
 
-button{font:inherit}
+button{
+  font:inherit
+}
 
 .primary{
   width:100%;
@@ -139,14 +174,22 @@ button{font:inherit}
   cursor:pointer
 }
 
+.primary:disabled{
+  opacity:.65;
+  cursor:default
+}
+
 .error{
   color:#ffb8c2;
   text-align:center;
   font-size:13px;
-  margin-top:12px
+  margin-top:12px;
+  min-height:20px
 }
 
-.dashboard{display:none}
+.dashboard{
+  display:none
+}
 
 .toolbar{
   display:grid;
@@ -215,7 +258,9 @@ button{font:inherit}
   margin-top:2px
 }
 
-.stat.hot strong{color:var(--red)}
+.stat.hot strong{
+  color:var(--red)
+}
 
 .requests{
   display:grid;
@@ -240,12 +285,15 @@ button{font:inherit}
 }
 
 @keyframes flash{
+
   0%,100%{
     box-shadow:0 10px 30px rgba(0,0,0,.22)
   }
+
   35%{
     box-shadow:0 0 35px rgba(255,23,56,.42)
   }
+
 }
 
 .table{
@@ -330,7 +378,10 @@ button{font:inherit}
 }
 
 @media(max-width:760px){
-  .shell{padding:12px}
+
+  .shell{
+    padding:12px
+  }
 
   .top{
     align-items:flex-start
@@ -360,48 +411,92 @@ button{font:inherit}
   .title h1{
     font-size:22px
   }
+
 }
+
 </style>
+
 </head>
+
 
 <body>
 
-<div id="loginView" class="login">
-  <img class="brand" src="assets/mazzeka-logo.png" alt="Mazzeka">
 
-  <h1>دخول لوحة نداء الويتر</h1>
+<div
+  id="loginView"
+  class="login"
+>
+
+  <img
+    class="brand"
+    src="assets/mazzeka-logo.png"
+    alt="Mazzeka"
+  >
+
+  <h1>
+    دخول لوحة نداء الويتر
+  </h1>
+
 
   <form id="loginForm">
 
     <div class="field">
-      <label for="email">البريد الإلكتروني</label>
+
+      <label for="email">
+        البريد الإلكتروني
+      </label>
+
       <input
         id="email"
         type="email"
         autocomplete="username"
         required
       >
+
     </div>
 
+
     <div class="field">
-      <label for="password">كلمة المرور</label>
+
+      <label for="password">
+        كلمة المرور
+      </label>
+
       <input
         id="password"
         type="password"
         autocomplete="current-password"
         required
       >
+
     </div>
 
-    <button class="primary" type="submit">دخول</button>
 
-    <div id="loginError" class="error"></div>
+    <button
+      class="primary"
+      id="loginButton"
+      type="submit"
+    >
+      دخول
+    </button>
+
+
+    <div
+      id="loginError"
+      class="error"
+      aria-live="polite"
+    ></div>
 
   </form>
+
 </div>
 
 
-<div id="dashboard" class="dashboard">
+
+<div
+  id="dashboard"
+  class="dashboard"
+>
 
   <div class="shell">
 
@@ -413,53 +508,107 @@ button{font:inherit}
         alt="Mazzeka"
       >
 
-      <div class="status">
+
+      <div
+        class="status"
+        id="connectionStatus"
+      >
+
         <span class="dot"></span>
+
         النظام يعمل
+
       </div>
 
     </header>
 
 
+
     <section class="toolbar">
 
       <div class="title">
-        <h1>طلبات الخدمة</h1>
-        <p>طلبات نداء الويتر تظهر لحظيًا على هذه الشاشة.</p>
+
+        <h1>
+          طلبات الخدمة
+        </h1>
+
+        <p>
+          طلبات نداء الويتر تظهر لحظيًا على هذه الشاشة.
+        </p>
+
       </div>
 
-      <button id="enableAudio" class="audio">
+
+      <button
+        id="enableAudio"
+        class="audio"
+        type="button"
+      >
         🔊 تفعيل الصوت
       </button>
 
-      <button id="logout" class="logout">
+
+      <button
+        id="logout"
+        class="logout"
+        type="button"
+      >
         خروج
       </button>
 
     </section>
 
 
+
     <section class="stats">
 
       <div class="stat hot">
-        <small>طلبات حالية</small>
-        <strong id="pendingCount">0</strong>
+
+        <small>
+          طلبات حالية
+        </small>
+
+        <strong id="pendingCount">
+          0
+        </strong>
+
       </div>
 
-      <div class="stat">
-        <small>طلبات اليوم</small>
-        <strong id="todayCount">0</strong>
-      </div>
 
       <div class="stat">
-        <small>حالة الصوت</small>
-        <strong id="audioState">غير مفعل</strong>
+
+        <small>
+          طلبات اليوم
+        </small>
+
+        <strong id="todayCount">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="stat">
+
+        <small>
+          حالة الصوت
+        </small>
+
+        <strong id="audioState">
+          غير مفعل
+        </strong>
+
       </div>
 
     </section>
 
 
-    <section id="requests" class="requests"></section>
+
+    <section
+      id="requests"
+      class="requests"
+    ></section>
+
 
     <div class="bottom">
       Mazzeka · نظام نداء الويتر
@@ -470,14 +619,23 @@ button{font:inherit}
 </div>
 
 
-<div id="toast" class="toast"></div>
+
+<div
+  id="toast"
+  class="toast"
+  role="status"
+  aria-live="polite"
+></div>
+
 
 
 <script type="module">
 
+
 import {
   initializeApp
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+
 
 import {
   getFirestore,
@@ -492,6 +650,7 @@ import {
   getCountFromServer
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
+
 import {
   getAuth,
   onAuthStateChanged,
@@ -499,127 +658,266 @@ import {
   signOut
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
+
 import {
   firebaseConfig,
   APP_CONFIG
 } from './config.js';
 
 
-const loginView=document.getElementById('loginView');
-const dashboard=document.getElementById('dashboard');
-const requestsEl=document.getElementById('requests');
 
-const pendingCount=document.getElementById('pendingCount');
-const todayCount=document.getElementById('todayCount');
-const audioState=document.getElementById('audioState');
+const loginView =
+  document.getElementById('loginView');
+
+const dashboard =
+  document.getElementById('dashboard');
+
+const requestsEl =
+  document.getElementById('requests');
+
+const pendingCount =
+  document.getElementById('pendingCount');
+
+const todayCount =
+  document.getElementById('todayCount');
+
+const audioState =
+  document.getElementById('audioState');
+
+const connectionStatus =
+  document.getElementById('connectionStatus');
+
+const loginButton =
+  document.getElementById('loginButton');
+
 
 
 let db;
+
 let auth;
-let unsubscribe=null;
 
-let audioEnabled=false;
-let audioBusy=false;
+let unsubscribe = null;
 
-let seenIds=new Set();
-let queue=[];
-let firstSnapshot=true;
+let audioEnabled = false;
+
+let audioBusy = false;
+
+let seenIds = new Set();
+
+let queue = [];
+
+let firstSnapshot = true;
+
 
 /*
   الترابيزة التي يتم تشغيل إعلانها حاليًا.
-  نستخدمها حتى نستطيع قطع صوتها فقط.
 */
-let currentAnnouncementTable=null;
+let currentAnnouncementTable = null;
+
 
 /*
   الترابيزات التي تم إنهاء طلباتها.
-  أي إعلان لها في الطابور يتم تجاهله.
 */
-const cancelledTables=new Set();
+const cancelledTables =
+  new Set();
+
 
 
 function toast(text){
 
-  const el=document.getElementById('toast');
+  const el =
+    document.getElementById('toast');
 
-  el.textContent=text;
+  el.textContent = text;
 
   el.classList.add('show');
 
+
   setTimeout(()=>{
+
     el.classList.remove('show');
+
   },2600);
+
 }
 
 
-function formatAge(ts){
 
-  if(!ts?.toDate) return 'الآن';
+function showConnectionStatus(text){
 
-  const s=Math.max(
-    0,
-    Math.floor(
-      (Date.now()-ts.toDate().getTime())/1000
-    )
-  );
-
-  if(s<60){
-    return `منذ ${s} ثانية`;
-  }
-
-  const m=Math.floor(s/60);
-
-  return `منذ ${m} دقيقة`;
-}
-
-
-function render(items){
-
-  pendingCount.textContent=items.length;
-
-  if(!items.length){
-
-    requestsEl.innerHTML=
-      '<div class="empty"><strong>لا توجد طلبات معلقة</strong>كل شيء هادئ الآن.</div>';
+  if(!connectionStatus){
 
     return;
   }
 
 
-  requestsEl.innerHTML=items.map(x=>`
+  connectionStatus.innerHTML =
+    `<span class="dot"></span>${text}`;
 
-    <article
-      class="request"
-      data-id="${x.id}"
-    >
-
-      <div>
-
-        <div class="table">
-          ترابيزة رقم
-        </div>
-
-        <div class="num">
-          ${x.tableNumber}
-        </div>
-
-        <div class="age">
-          ◷ ${formatAge(x.createdAt)}
-        </div>
-
-      </div>
+}
 
 
-      <button
-        class="done"
-        data-complete="${x.id}"
+
+function handleOffline(){
+
+  showConnectionStatus(
+    'غير متصل — جاري إعادة الاتصال...'
+  );
+
+
+  toast(
+    'انقطع الاتصال بالإنترنت.'
+  );
+
+}
+
+
+
+function handleOnline(){
+
+  showConnectionStatus(
+    'النظام يعمل'
+  );
+
+
+  toast(
+    'تمت استعادة الاتصال.'
+  );
+
+}
+
+
+
+window.addEventListener(
+  'offline',
+  handleOffline
+);
+
+
+window.addEventListener(
+  'online',
+  handleOnline
+);
+
+
+
+/*
+  إلغاء Firestore listener والصوت
+  عند إغلاق الصفحة.
+*/
+window.addEventListener(
+  'beforeunload',
+  ()=>{
+
+    if(unsubscribe){
+
+      unsubscribe();
+
+      unsubscribe = null;
+
+    }
+
+
+    if('speechSynthesis' in window){
+
+      window.speechSynthesis.cancel();
+
+    }
+
+  }
+);
+
+
+
+function formatAge(ts){
+
+  if(!ts?.toDate){
+
+    return 'الآن';
+
+  }
+
+
+  const s =
+    Math.max(
+      0,
+      Math.floor(
+        (Date.now() -
+          ts.toDate().getTime()) /
+        1000
+      )
+    );
+
+
+  if(s < 60){
+
+    return `منذ ${s} ثانية`;
+
+  }
+
+
+  const m =
+    Math.floor(s / 60);
+
+
+  return `منذ ${m} دقيقة`;
+
+}
+
+
+
+function render(items){
+
+  pendingCount.textContent =
+    items.length;
+
+
+  if(!items.length){
+
+    requestsEl.innerHTML =
+      '<div class="empty"><strong>لا توجد طلبات معلقة</strong>كل شيء هادئ الآن.</div>';
+
+    return;
+
+  }
+
+
+  requestsEl.innerHTML =
+    items.map(x=>`
+
+      <article
+        class="request"
+        data-id="${x.id}"
       >
-        ✓ تم
-      </button>
 
-    </article>
+        <div>
 
-  `).join('');
+          <div class="table">
+            ترابيزة رقم
+          </div>
+
+          <div class="num">
+            ${x.tableNumber}
+          </div>
+
+          <div class="age">
+            ◷ ${formatAge(x.createdAt)}
+          </div>
+
+        </div>
+
+
+        <button
+          class="done"
+          data-complete="${x.id}"
+          type="button"
+        >
+          ✓ تم
+        </button>
+
+      </article>
+
+    `).join('');
 
 
   requestsEl
@@ -628,77 +926,95 @@ function render(items){
 
       button.addEventListener(
         'click',
-        ()=>completeCall(button.dataset.complete)
+        ()=>completeCall(
+          button.dataset.complete
+        )
       );
 
     });
+
 }
+
 
 
 /*
   إيقاف إعلان ترابيزة معينة.
-
-  - نحذف أي طلب صوتي لها من الطابور.
-  - نسجل أنها أُلغيت.
-  - إذا كانت تتكلم الآن، نقطع speechSynthesis فورًا.
 */
-function stopAnnouncementForTable(tableNumber){
+function stopAnnouncementForTable(
+  tableNumber
+){
 
-  queue=queue.filter(
-    item=>Number(item.tableNumber)!==Number(tableNumber)
+  queue =
+    queue.filter(
+      item =>
+        Number(item.tableNumber) !==
+        Number(tableNumber)
+    );
+
+
+  cancelledTables.add(
+    Number(tableNumber)
   );
-
-  cancelledTables.add(Number(tableNumber));
 
 
   if(
-    currentAnnouncementTable!==null &&
-    Number(currentAnnouncementTable)===Number(tableNumber)
+    currentAnnouncementTable !== null &&
+    Number(currentAnnouncementTable) ===
+      Number(tableNumber)
   ){
 
     if('speechSynthesis' in window){
+
       window.speechSynthesis.cancel();
+
     }
 
-    currentAnnouncementTable=null;
+
+    currentAnnouncementTable = null;
+
   }
+
 }
+
 
 
 /*
   إنهاء الطلب.
-
-  أول شيء نوقف الصوت الخاص بالترابيزة،
-  ثم نحدث الطلب في Firestore إلى done.
 */
 async function completeCall(id){
 
   try{
 
-    const requestEl=
+    const requestElement =
       document.querySelector(
         `.request[data-id="${id}"]`
       );
 
 
-    let tableNumber=null;
+    let tableNumber = null;
 
 
-    if(requestEl){
+    if(requestElement){
 
-      const numberElement=
-        requestEl.querySelector('.num');
+      const numberElement =
+        requestElement.querySelector(
+          '.num'
+        );
+
 
       if(numberElement){
-        tableNumber=
-          Number(numberElement.textContent.trim());
+
+        tableNumber =
+          Number(
+            numberElement.textContent.trim()
+          );
+
       }
 
     }
 
 
     /*
-      مهم:
       نقطع الصوت فورًا قبل انتظار Firestore.
     */
     if(Number.isInteger(tableNumber)){
@@ -719,17 +1035,24 @@ async function completeCall(id){
     );
 
 
-    toast('تم إنهاء الطلب.');
+    toast(
+      'تم إنهاء الطلب.'
+    );
 
 
   }catch(e){
 
     console.error(e);
 
-    toast('تعذر إنهاء الطلب.');
+
+    toast(
+      'تعذر إنهاء الطلب.'
+    );
 
   }
+
 }
+
 
 
 /*
@@ -743,39 +1066,42 @@ function speak(tableNumber){
   ){
 
     return Promise.resolve();
+
   }
 
 
   return new Promise(resolve=>{
 
-    const u=
+    const u =
       new SpeechSynthesisUtterance(
         `الترابيزة رقم ${tableNumber} تطلب الويتر`
       );
 
 
-    u.lang='ar-EG';
-    u.rate=.9;
-    u.pitch=1;
-    u.volume=1;
+    u.lang = 'ar-EG';
+
+    u.rate = .9;
+
+    u.pitch = 1;
+
+    u.volume = 1;
 
 
-    u.onend=resolve;
-    u.onerror=resolve;
+    u.onend = resolve;
+
+    u.onerror = resolve;
 
 
     window.speechSynthesis.speak(u);
 
   });
+
 }
+
 
 
 /*
   تشغيل طابور الإعلانات.
-
-  كل طلب يتم تشغيله 3 مرات حسب APP_CONFIG.
-  إذا ضغط الويتر "تم" أثناء الكلام،
-  يتم إيقاف الإعلان فورًا ولا يتم تكراره.
 */
 async function drainQueue(){
 
@@ -786,23 +1112,21 @@ async function drainQueue(){
   ){
 
     return;
+
   }
 
 
-  audioBusy=true;
+  audioBusy = true;
 
 
   try{
 
     while(queue.length){
 
-      const item=queue.shift();
+      const item =
+        queue.shift();
 
 
-      /*
-        لو الطلب تم إنهاؤه أثناء وجوده
-        في الطابور، نتجاهله.
-      */
       if(
         cancelledTables.has(
           Number(item.tableNumber)
@@ -814,20 +1138,16 @@ async function drainQueue(){
       }
 
 
-      currentAnnouncementTable=
+      currentAnnouncementTable =
         Number(item.tableNumber);
 
 
       for(
-        let i=0;
-        i<APP_CONFIG.announcementRepeats;
+        let i = 0;
+        i < APP_CONFIG.announcementRepeats;
         i++
       ){
 
-
-        /*
-          فحص قبل كل تكرار.
-        */
         if(
           cancelledTables.has(
             Number(item.tableNumber)
@@ -844,9 +1164,6 @@ async function drainQueue(){
         );
 
 
-        /*
-          فحص بعد انتهاء الكلام.
-        */
         if(
           cancelledTables.has(
             Number(item.tableNumber)
@@ -859,34 +1176,36 @@ async function drainQueue(){
 
 
         if(
-          i<
-          APP_CONFIG.announcementRepeats-1
+          i <
+          APP_CONFIG.announcementRepeats - 1
         ){
 
-          await new Promise(resolve=>{
+          await new Promise(
+            resolve=>{
 
-            setTimeout(
-              resolve,
-              APP_CONFIG.announcementGapMs
-            );
+              setTimeout(
+                resolve,
+                APP_CONFIG.announcementGapMs
+              );
 
-          });
+            }
+          );
 
         }
 
       }
 
 
-      currentAnnouncementTable=null;
+      currentAnnouncementTable = null;
 
     }
 
 
   }finally{
 
-    currentAnnouncementTable=null;
+    currentAnnouncementTable = null;
 
-    audioBusy=false;
+    audioBusy = false;
 
 
     if(queue.length){
@@ -896,7 +1215,9 @@ async function drainQueue(){
     }
 
   }
+
 }
+
 
 
 /*
@@ -905,22 +1226,29 @@ async function drainQueue(){
 function queueAnnouncements(items){
 
   /*
-    أول Snapshot عند فتح الداشبورد:
-    لا نريد إعادة نطق الطلبات القديمة.
+    أول Snapshot:
+    لا ننطق الطلبات القديمة.
   */
   if(firstSnapshot){
 
     items.forEach(
-      item=>seenIds.add(item.id)
+      item =>
+        seenIds.add(item.id)
     );
 
-    firstSnapshot=false;
+
+    firstSnapshot = false;
 
     return;
+
   }
 
 
-  if(!audioEnabled) return;
+  if(!audioEnabled){
+
+    return;
+
+  }
 
 
   for(const item of items){
@@ -930,11 +1258,6 @@ function queueAnnouncements(items){
       seenIds.add(item.id);
 
 
-      /*
-        لو جاءت طلبية جديدة لنفس الترابيزة
-        بعد إنهاء الطلب السابق، نسمح لها
-        بالتحدث من جديد.
-      */
       cancelledTables.delete(
         Number(item.tableNumber)
       );
@@ -948,33 +1271,53 @@ function queueAnnouncements(items){
 
 
   drainQueue();
+
 }
 
 
+
+/*
+  الاشتراك في طلبات Firestore.
+*/
 function subscribe(){
 
   if(unsubscribe){
 
     unsubscribe();
 
+    unsubscribe = null;
+
   }
 
 
-  const q=
+  const q =
     query(
       collection(db,'calls'),
-      where('status','==','pending'),
-      orderBy('createdAt','asc')
+      where(
+        'status',
+        '==',
+        'pending'
+      ),
+      orderBy(
+        'createdAt',
+        'asc'
+      )
     );
 
 
-  unsubscribe=
+  unsubscribe =
     onSnapshot(
+
       q,
 
       snap=>{
 
-        const items=
+        showConnectionStatus(
+          'النظام يعمل'
+        );
+
+
+        const items =
           snap.docs.map(
             d=>({
               id:d.id,
@@ -995,20 +1338,34 @@ function subscribe(){
 
         console.error(err);
 
+
+        showConnectionStatus(
+          'غير متصل — جاري إعادة الاتصال...'
+        );
+
+
         toast(
           'تعذر تحديث الطلبات اللحظية.'
         );
 
       }
+
     );
+
 }
 
 
+
+/*
+  تحديث عداد طلبات اليوم.
+*/
 async function updateTodayCount(){
 
   try{
 
-    const d=new Date();
+    const d =
+      new Date();
+
 
     d.setHours(
       0,
@@ -1018,7 +1375,7 @@ async function updateTodayCount(){
     );
 
 
-    const q=
+    const q =
       query(
         collection(db,'calls'),
         where(
@@ -1029,11 +1386,11 @@ async function updateTodayCount(){
       );
 
 
-    const result=
+    const result =
       await getCountFromServer(q);
 
 
-    todayCount.textContent=
+    todayCount.textContent =
       String(
         result.data().count
       );
@@ -1043,10 +1400,14 @@ async function updateTodayCount(){
 
     console.error(e);
 
-    todayCount.textContent='—';
+
+    todayCount.textContent =
+      '—';
 
   }
+
 }
+
 
 
 /*
@@ -1054,32 +1415,36 @@ async function updateTodayCount(){
 */
 function enableAudio(){
 
-  audioEnabled=true;
+  audioEnabled = true;
 
-  audioState.textContent='مفعل';
+
+  audioState.textContent =
+    'مفعل';
+
 
   document.getElementById(
     'enableAudio'
-  ).textContent='🔊 الصوت مفعل';
+  ).textContent =
+    '🔊 الصوت مفعل';
+
 
   document.getElementById(
     'enableAudio'
-  ).disabled=true;
+  ).disabled = true;
 
 
-  /*
-    رسالة اختبار صغيرة للتأكد أن المتصفح
-    سمح بالصوت بعد ضغط المستخدم.
-  */
   if('speechSynthesis' in window){
 
-    const u=
+    const u =
       new SpeechSynthesisUtterance(
         'تم تفعيل صوت النظام'
       );
 
-    u.lang='ar-EG';
-    u.volume=.7;
+
+    u.lang = 'ar-EG';
+
+    u.volume = .7;
+
 
     window.speechSynthesis.speak(u);
 
@@ -1089,7 +1454,16 @@ function enableAudio(){
   toast(
     'تم تفعيل الصوت. اترك لوحة التحكم مفتوحة.'
   );
+
+
+  /*
+    إذا كان هناك طلب جديد وصل قبل
+    تفعيل الصوت، يبدأ الطابور الآن.
+  */
+  drainQueue();
+
 }
+
 
 
 document
@@ -1097,15 +1471,55 @@ document
   .addEventListener(
     'click',
     enableAudio
-  );
+);
+
 
 
 document
   .getElementById('logout')
   .addEventListener(
     'click',
-    ()=>signOut(auth)
-  );
+    async ()=>{
+
+      try{
+
+        if(unsubscribe){
+
+          unsubscribe();
+
+          unsubscribe = null;
+
+        }
+
+
+        queue = [];
+
+        cancelledTables.clear();
+
+
+        if('speechSynthesis' in window){
+
+          window.speechSynthesis.cancel();
+
+        }
+
+
+        await signOut(auth);
+
+      }catch(e){
+
+        console.error(e);
+
+
+        toast(
+          'تعذر تسجيل الخروج.'
+        );
+
+      }
+
+    }
+);
+
 
 
 document
@@ -1117,53 +1531,153 @@ document
       e.preventDefault();
 
 
-      const err=
+      const err =
         document.getElementById(
           'loginError'
         );
 
 
-      err.textContent='';
+      const email =
+        document
+          .getElementById('email')
+          .value
+          .trim();
+
+
+      const password =
+        document
+          .getElementById('password')
+          .value;
+
+
+      err.textContent = '';
+
+
+      if(!email){
+
+        err.textContent =
+          'من فضلك أدخل البريد الإلكتروني.';
+
+        return;
+
+      }
+
+
+      if(!email.includes('@')){
+
+        err.textContent =
+          'صيغة البريد الإلكتروني غير صحيحة.';
+
+        return;
+
+      }
+
+
+      if(!password){
+
+        err.textContent =
+          'من فضلك أدخل كلمة المرور.';
+
+        return;
+
+      }
+
+
+      if(password.length < 6){
+
+        err.textContent =
+          'كلمة المرور يجب أن تكون 6 أحرف على الأقل.';
+
+        return;
+
+      }
+
+
+      loginButton.disabled = true;
+
+      loginButton.textContent =
+        'جاري الدخول...';
 
 
       try{
 
         await signInWithEmailAndPassword(
           auth,
-          document
-            .getElementById('email')
-            .value
-            .trim(),
-          document
-            .getElementById('password')
-            .value
+          email,
+          password
         );
+
+
+        err.textContent = '';
 
 
       }catch(x){
 
         console.error(x);
 
-        err.textContent=
-          'بيانات الدخول غير صحيحة أو الحساب غير مفعّل.';
+
+        switch(x.code){
+
+          case 'auth/invalid-credential':
+
+          case 'auth/wrong-password':
+
+          case 'auth/user-not-found':
+
+            err.textContent =
+              'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+
+            break;
+
+
+          case 'auth/too-many-requests':
+
+            err.textContent =
+              'تم إيقاف محاولات الدخول مؤقتًا. حاول لاحقًا.';
+
+            break;
+
+
+          case 'auth/network-request-failed':
+
+            err.textContent =
+              'تعذر الاتصال بالإنترنت. تحقق من الاتصال وحاول مرة أخرى.';
+
+            break;
+
+
+          default:
+
+            err.textContent =
+              'تعذر تسجيل الدخول الآن. حاول مرة أخرى.';
+
+        }
+
+      }finally{
+
+        loginButton.disabled = false;
+
+        loginButton.textContent =
+          'دخول';
 
       }
 
     }
-  );
+);
+
 
 
 try{
 
-  const app=
+  const app =
     initializeApp(firebaseConfig);
 
 
-  db=
+  db =
     getFirestore(app);
 
 
-  auth=
+  auth =
     getAuth(app);
 
 
@@ -1173,25 +1687,55 @@ try{
 
       if(user){
 
-        loginView.style.display='none';
+        loginView.style.display =
+          'none';
 
-        dashboard.style.display='block';
+
+        dashboard.style.display =
+          'block';
+
+
+        showConnectionStatus(
+          navigator.onLine
+            ? 'النظام يعمل'
+            : 'غير متصل — جاري إعادة الاتصال...'
+        );
+
 
         subscribe();
 
 
       }else{
 
-        dashboard.style.display='none';
+        dashboard.style.display =
+          'none';
 
-        loginView.style.display='block';
+
+        loginView.style.display =
+          'block';
 
 
         if(unsubscribe){
 
           unsubscribe();
 
-          unsubscribe=null;
+          unsubscribe = null;
+
+        }
+
+
+        queue = [];
+
+        cancelledTables.clear();
+
+
+        currentAnnouncementTable =
+          null;
+
+
+        if('speechSynthesis' in window){
+
+          window.speechSynthesis.cancel();
 
         }
 
@@ -1205,12 +1749,14 @@ try{
 
   console.error(e);
 
+
   document.getElementById(
     'loginError'
-  ).textContent=
-    'لم يتم إعداد Firebase بعد.';
+  ).textContent =
+    'تعذر تهيئة النظام. تحقق من إعداد Firebase.';
 
 }
+
 
 
 /*
@@ -1223,19 +1769,20 @@ setInterval(()=>{
     .forEach(request=>{
 
       /*
-        إعادة تحميل snapshot من Firestore
-        ليست مطلوبة هنا؛ هذا الجزء موجود
-        فقط للحفاظ على السلوك السابق.
+        لا نعيد تحميل Firestore هنا.
+        الـSnapshot هو المسؤول عن البيانات.
       */
 
-      const id=
+      const id =
         request.dataset.id;
 
     });
 
 },10000);
 
+
 </script>
 
 </body>
+
 </html>
