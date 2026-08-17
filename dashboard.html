@@ -1,47 +1,1241 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#050506"><title>Mazzeka — لوحة نداء الويتر</title>
-<link rel="icon" href="assets/mazzeka-logo.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050506">
+<title>Mazzeka — لوحة نداء الويتر</title>
+
+<link rel="icon" href="assets/mazzeka-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
 <style>
-:root{--bg:#050506;--panel:#0d0d10;--panel2:#121216;--line:#2a2225;--red:#ff1738;--red2:#ff3d55;--text:#fff;--muted:#a9a3a5;--green:#21d47b}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif}body{min-height:100dvh}.shell{width:min(1250px,100%);margin:auto;padding:20px}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:8px 2px 18px}.brand{height:82px;width:300px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(255,20,55,.35));mix-blend-mode:screen}.status{border:1px solid #26332d;background:#0d1511;border-radius:14px;padding:10px 14px;display:flex;gap:9px;align-items:center;color:#d9e8df;font-size:14px}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}.login{max-width:440px;margin:9vh auto 0;padding:30px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,#111013,#080809);box-shadow:0 25px 80px #000}.login .brand{width:100%;height:110px}.login h1{font-size:23px;text-align:center;margin:4px 0 22px}.field{display:grid;gap:8px;margin-bottom:14px}.field label{color:#d8d2d4;font-size:14px}.field input{width:100%;border:1px solid #332a2d;background:#0a0a0c;color:#fff;border-radius:13px;padding:13px 14px;font:inherit;outline:none}.field input:focus{border-color:#a91b30;box-shadow:0 0 0 3px rgba(255,23,56,.09)}button{font:inherit}.primary{width:100%;border:0;border-radius:14px;padding:13px;background:linear-gradient(180deg,#ff314d,#d90d2c);color:#fff;font-weight:800;cursor:pointer}.error{color:#ffb8c2;text-align:center;font-size:13px;margin-top:12px}.dashboard{display:none}.toolbar{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin-bottom:14px}.title h1{font-size:26px;margin:0}.title p{color:var(--muted);margin:2px 0 0;font-size:13px}.audio{border:1px solid #3b2a2e;background:#100d0f;border-radius:13px;color:#fff;padding:11px 14px;cursor:pointer}.logout{border:1px solid #322a2c;background:#0d0c0e;border-radius:13px;color:#ccc;padding:11px 14px;cursor:pointer}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.stat{border:1px solid var(--line);background:linear-gradient(180deg,#121114,#0a0a0c);border-radius:18px;padding:16px 18px}.stat small{color:#aaa;font-size:13px}.stat strong{display:block;font-size:32px;margin-top:2px}.stat.hot strong{color:var(--red)}.requests{display:grid;gap:12px}.request{border:1px solid #35262a;border-right:4px solid var(--red);border-radius:18px;background:linear-gradient(90deg,#101013,#0b0b0d);padding:17px 18px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.22)}.request.new{animation:flash 1.3s ease-out}@keyframes flash{0%,100%{box-shadow:0 10px 30px rgba(0,0,0,.22)}35%{box-shadow:0 0 35px rgba(255,23,56,.42)}}.table{font-size:13px;color:#d5ced0}.num{font-size:43px;font-weight:800;color:#ff304d;line-height:1}.age{color:#aaa;font-size:13px;margin-top:6px;font-variant-numeric:tabular-nums}.done{min-width:118px;border:0;border-radius:13px;padding:13px 18px;background:linear-gradient(180deg,#ff314d,#d90d2c);color:#fff;font-weight:800;cursor:pointer}.empty{padding:55px 20px;text-align:center;border:1px dashed #30292b;border-radius:18px;color:#777;background:#09090a}.empty strong{display:block;color:#bdb7b9;font-size:18px;margin-bottom:4px}.bottom{margin-top:18px;padding:14px;border-top:1px solid #2a2023;color:#888;text-align:center;font-size:13px}.toast{position:fixed;left:20px;bottom:20px;background:#171316;border:1px solid #3b292d;color:#fff;padding:12px 16px;border-radius:13px;box-shadow:0 12px 30px #000;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}@media(max-width:760px){.shell{padding:12px}.top{align-items:flex-start}.brand{width:220px;height:65px}.toolbar{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.request{grid-template-columns:1fr}.done{width:100%}.title h1{font-size:22px}}
+:root{
+  --bg:#050506;
+  --panel:#0d0d10;
+  --panel2:#121216;
+  --line:#2a2225;
+  --red:#ff1738;
+  --red2:#ff3d55;
+  --text:#fff;
+  --muted:#a9a3a5;
+  --green:#21d47b
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Cairo,system-ui,sans-serif
+}
+
+body{min-height:100dvh}
+
+.shell{
+  width:min(1250px,100%);
+  margin:auto;
+  padding:20px
+}
+
+.top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:8px 2px 18px
+}
+
+.brand{
+  height:82px;
+  width:300px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 10px rgba(255,20,55,.35));
+  mix-blend-mode:screen
+}
+
+.status{
+  border:1px solid #26332d;
+  background:#0d1511;
+  border-radius:14px;
+  padding:10px 14px;
+  display:flex;
+  gap:9px;
+  align-items:center;
+  color:#d9e8df;
+  font-size:14px
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 10px var(--green)
+}
+
+.login{
+  max-width:440px;
+  margin:9vh auto 0;
+  padding:30px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:linear-gradient(180deg,#111013,#080809);
+  box-shadow:0 25px 80px #000
+}
+
+.login .brand{
+  width:100%;
+  height:110px
+}
+
+.login h1{
+  font-size:23px;
+  text-align:center;
+  margin:4px 0 22px
+}
+
+.field{
+  display:grid;
+  gap:8px;
+  margin-bottom:14px
+}
+
+.field label{
+  color:#d8d2d4;
+  font-size:14px
+}
+
+.field input{
+  width:100%;
+  border:1px solid #332a2d;
+  background:#0a0a0c;
+  color:#fff;
+  border-radius:13px;
+  padding:13px 14px;
+  font:inherit;
+  outline:none
+}
+
+.field input:focus{
+  border-color:#a91b30;
+  box-shadow:0 0 0 3px rgba(255,23,56,.09)
+}
+
+button{font:inherit}
+
+.primary{
+  width:100%;
+  border:0;
+  border-radius:14px;
+  padding:13px;
+  background:linear-gradient(180deg,#ff314d,#d90d2c);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer
+}
+
+.error{
+  color:#ffb8c2;
+  text-align:center;
+  font-size:13px;
+  margin-top:12px
+}
+
+.dashboard{display:none}
+
+.toolbar{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:12px;
+  align-items:center;
+  margin-bottom:14px
+}
+
+.title h1{
+  font-size:26px;
+  margin:0
+}
+
+.title p{
+  color:var(--muted);
+  margin:2px 0 0;
+  font-size:13px
+}
+
+.audio{
+  border:1px solid #3b2a2e;
+  background:#100d0f;
+  border-radius:13px;
+  color:#fff;
+  padding:11px 14px;
+  cursor:pointer
+}
+
+.audio:disabled{
+  cursor:default;
+  opacity:.7
+}
+
+.logout{
+  border:1px solid #322a2c;
+  background:#0d0c0e;
+  border-radius:13px;
+  color:#ccc;
+  padding:11px 14px;
+  cursor:pointer
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:16px
+}
+
+.stat{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,#121114,#0a0a0c);
+  border-radius:18px;
+  padding:16px 18px
+}
+
+.stat small{
+  color:#aaa;
+  font-size:13px
+}
+
+.stat strong{
+  display:block;
+  font-size:32px;
+  margin-top:2px
+}
+
+.stat.hot strong{color:var(--red)}
+
+.requests{
+  display:grid;
+  gap:12px
+}
+
+.request{
+  border:1px solid #35262a;
+  border-right:4px solid var(--red);
+  border-radius:18px;
+  background:linear-gradient(90deg,#101013,#0b0b0d);
+  padding:17px 18px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:16px;
+  align-items:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.22)
+}
+
+.request.new{
+  animation:flash 1.3s ease-out
+}
+
+@keyframes flash{
+  0%,100%{
+    box-shadow:0 10px 30px rgba(0,0,0,.22)
+  }
+  35%{
+    box-shadow:0 0 35px rgba(255,23,56,.42)
+  }
+}
+
+.table{
+  font-size:13px;
+  color:#d5ced0
+}
+
+.num{
+  font-size:43px;
+  font-weight:800;
+  color:#ff304d;
+  line-height:1
+}
+
+.age{
+  color:#aaa;
+  font-size:13px;
+  margin-top:6px;
+  font-variant-numeric:tabular-nums
+}
+
+.done{
+  min-width:118px;
+  border:0;
+  border-radius:13px;
+  padding:13px 18px;
+  background:linear-gradient(180deg,#ff314d,#d90d2c);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer
+}
+
+.done:disabled{
+  opacity:.65;
+  cursor:default
+}
+
+.empty{
+  padding:55px 20px;
+  text-align:center;
+  border:1px dashed #30292b;
+  border-radius:18px;
+  color:#777;
+  background:#09090a
+}
+
+.empty strong{
+  display:block;
+  color:#bdb7b9;
+  font-size:18px;
+  margin-bottom:4px
+}
+
+.bottom{
+  margin-top:18px;
+  padding:14px;
+  border-top:1px solid #2a2023;
+  color:#888;
+  text-align:center;
+  font-size:13px
+}
+
+.toast{
+  position:fixed;
+  left:20px;
+  bottom:20px;
+  background:#171316;
+  border:1px solid #3b292d;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:13px;
+  box-shadow:0 12px 30px #000;
+  opacity:0;
+  transform:translateY(10px);
+  pointer-events:none;
+  transition:.2s
+}
+
+.toast.show{
+  opacity:1;
+  transform:none
+}
+
+@media(max-width:760px){
+  .shell{padding:12px}
+
+  .top{
+    align-items:flex-start
+  }
+
+  .brand{
+    width:220px;
+    height:65px
+  }
+
+  .toolbar{
+    grid-template-columns:1fr
+  }
+
+  .stats{
+    grid-template-columns:1fr
+  }
+
+  .request{
+    grid-template-columns:1fr
+  }
+
+  .done{
+    width:100%
+  }
+
+  .title h1{
+    font-size:22px
+  }
+}
 </style>
 </head>
+
 <body>
-<div id="loginView" class="login"><img class="brand" src="assets/mazzeka-logo.png" alt="Mazzeka"><h1>دخول لوحة نداء الويتر</h1><form id="loginForm"><div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="username" required></div><div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" required></div><button class="primary" type="submit">دخول</button><div id="loginError" class="error"></div></form></div>
-<div id="dashboard" class="dashboard"><div class="shell"><header class="top"><img class="brand" src="assets/mazzeka-logo.png" alt="Mazzeka"><div class="status"><span class="dot"></span> النظام يعمل</div></header><section class="toolbar"><div class="title"><h1>طلبات الخدمة</h1><p>طلبات نداء الويتر تظهر لحظيًا على هذه الشاشة.</p></div><button id="enableAudio" class="audio">🔊 تفعيل الصوت</button><button id="logout" class="logout">خروج</button></section><section class="stats"><div class="stat hot"><small>طلبات حالية</small><strong id="pendingCount">0</strong></div><div class="stat"><small>طلبات اليوم</small><strong id="todayCount">0</strong></div><div class="stat"><small>حالة الصوت</small><strong id="audioState">غير مفعل</strong></div></section><section id="requests" class="requests"></section><div class="bottom">Mazzeka · نظام نداء الويتر</div></div></div><div id="toast" class="toast"></div>
+
+<div id="loginView" class="login">
+  <img class="brand" src="assets/mazzeka-logo.png" alt="Mazzeka">
+
+  <h1>دخول لوحة نداء الويتر</h1>
+
+  <form id="loginForm">
+
+    <div class="field">
+      <label for="email">البريد الإلكتروني</label>
+      <input
+        id="email"
+        type="email"
+        autocomplete="username"
+        required
+      >
+    </div>
+
+    <div class="field">
+      <label for="password">كلمة المرور</label>
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        required
+      >
+    </div>
+
+    <button class="primary" type="submit">دخول</button>
+
+    <div id="loginError" class="error"></div>
+
+  </form>
+</div>
+
+
+<div id="dashboard" class="dashboard">
+
+  <div class="shell">
+
+    <header class="top">
+
+      <img
+        class="brand"
+        src="assets/mazzeka-logo.png"
+        alt="Mazzeka"
+      >
+
+      <div class="status">
+        <span class="dot"></span>
+        النظام يعمل
+      </div>
+
+    </header>
+
+
+    <section class="toolbar">
+
+      <div class="title">
+        <h1>طلبات الخدمة</h1>
+        <p>طلبات نداء الويتر تظهر لحظيًا على هذه الشاشة.</p>
+      </div>
+
+      <button id="enableAudio" class="audio">
+        🔊 تفعيل الصوت
+      </button>
+
+      <button id="logout" class="logout">
+        خروج
+      </button>
+
+    </section>
+
+
+    <section class="stats">
+
+      <div class="stat hot">
+        <small>طلبات حالية</small>
+        <strong id="pendingCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <small>طلبات اليوم</small>
+        <strong id="todayCount">0</strong>
+      </div>
+
+      <div class="stat">
+        <small>حالة الصوت</small>
+        <strong id="audioState">غير مفعل</strong>
+      </div>
+
+    </section>
+
+
+    <section id="requests" class="requests"></section>
+
+    <div class="bottom">
+      Mazzeka · نظام نداء الويتر
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, doc, Timestamp, getCountFromServer } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { firebaseConfig, APP_CONFIG } from './config.js';
 
-const loginView=document.getElementById('loginView'), dashboard=document.getElementById('dashboard'), requestsEl=document.getElementById('requests');
-const pendingCount=document.getElementById('pendingCount'),todayCount=document.getElementById('todayCount'),audioState=document.getElementById('audioState');
-let db,auth,unsubscribe=null,audioEnabled=false,audioBusy=false,seenIds=new Set(),queue=[],firstSnapshot=true;
+import {
+  initializeApp
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 
-function toast(text){const el=document.getElementById('toast');el.textContent=text;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)}
-function formatAge(ts){if(!ts?.toDate)return 'الآن';const s=Math.max(0,Math.floor((Date.now()-ts.toDate().getTime())/1000));if(s<60)return `منذ ${s} ثانية`;const m=Math.floor(s/60);return `منذ ${m} دقيقة`}
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  updateDoc,
+  doc,
+  Timestamp,
+  getCountFromServer
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+import {
+  firebaseConfig,
+  APP_CONFIG
+} from './config.js';
+
+
+const loginView=document.getElementById('loginView');
+const dashboard=document.getElementById('dashboard');
+const requestsEl=document.getElementById('requests');
+
+const pendingCount=document.getElementById('pendingCount');
+const todayCount=document.getElementById('todayCount');
+const audioState=document.getElementById('audioState');
+
+
+let db;
+let auth;
+let unsubscribe=null;
+
+let audioEnabled=false;
+let audioBusy=false;
+
+let seenIds=new Set();
+let queue=[];
+let firstSnapshot=true;
+
+/*
+  الترابيزة التي يتم تشغيل إعلانها حاليًا.
+  نستخدمها حتى نستطيع قطع صوتها فقط.
+*/
+let currentAnnouncementTable=null;
+
+/*
+  الترابيزات التي تم إنهاء طلباتها.
+  أي إعلان لها في الطابور يتم تجاهله.
+*/
+const cancelledTables=new Set();
+
+
+function toast(text){
+
+  const el=document.getElementById('toast');
+
+  el.textContent=text;
+
+  el.classList.add('show');
+
+  setTimeout(()=>{
+    el.classList.remove('show');
+  },2600);
+}
+
+
+function formatAge(ts){
+
+  if(!ts?.toDate) return 'الآن';
+
+  const s=Math.max(
+    0,
+    Math.floor(
+      (Date.now()-ts.toDate().getTime())/1000
+    )
+  );
+
+  if(s<60){
+    return `منذ ${s} ثانية`;
+  }
+
+  const m=Math.floor(s/60);
+
+  return `منذ ${m} دقيقة`;
+}
+
+
 function render(items){
+
   pendingCount.textContent=items.length;
-  if(!items.length){requestsEl.innerHTML='<div class="empty"><strong>لا توجد طلبات معلقة</strong>كل شيء هادئ الآن.</div>';return}
-  requestsEl.innerHTML=items.map(x=>`<article class="request" data-id="${x.id}"><div><div class="table">ترابيزة رقم</div><div class="num">${x.tableNumber}</div><div class="age">◷ ${formatAge(x.createdAt)}</div></div><button class="done" data-complete="${x.id}">✓ تم</button></article>`).join('');
-  requestsEl.querySelectorAll('[data-complete]').forEach(b=>b.addEventListener('click',()=>completeCall(b.dataset.complete)));
+
+  if(!items.length){
+
+    requestsEl.innerHTML=
+      '<div class="empty"><strong>لا توجد طلبات معلقة</strong>كل شيء هادئ الآن.</div>';
+
+    return;
+  }
+
+
+  requestsEl.innerHTML=items.map(x=>`
+
+    <article
+      class="request"
+      data-id="${x.id}"
+    >
+
+      <div>
+
+        <div class="table">
+          ترابيزة رقم
+        </div>
+
+        <div class="num">
+          ${x.tableNumber}
+        </div>
+
+        <div class="age">
+          ◷ ${formatAge(x.createdAt)}
+        </div>
+
+      </div>
+
+
+      <button
+        class="done"
+        data-complete="${x.id}"
+      >
+        ✓ تم
+      </button>
+
+    </article>
+
+  `).join('');
+
+
+  requestsEl
+    .querySelectorAll('[data-complete]')
+    .forEach(button=>{
+
+      button.addEventListener(
+        'click',
+        ()=>completeCall(button.dataset.complete)
+      );
+
+    });
 }
-async function completeCall(id){try{await updateDoc(doc(db,'calls',id),{status:'done',completedAt:Timestamp.now()});toast('تم إنهاء الطلب.')}catch(e){console.error(e);toast('تعذر إنهاء الطلب.')}}
+
+
+/*
+  إيقاف إعلان ترابيزة معينة.
+
+  - نحذف أي طلب صوتي لها من الطابور.
+  - نسجل أنها أُلغيت.
+  - إذا كانت تتكلم الآن، نقطع speechSynthesis فورًا.
+*/
+function stopAnnouncementForTable(tableNumber){
+
+  queue=queue.filter(
+    item=>Number(item.tableNumber)!==Number(tableNumber)
+  );
+
+  cancelledTables.add(Number(tableNumber));
+
+
+  if(
+    currentAnnouncementTable!==null &&
+    Number(currentAnnouncementTable)===Number(tableNumber)
+  ){
+
+    if('speechSynthesis' in window){
+      window.speechSynthesis.cancel();
+    }
+
+    currentAnnouncementTable=null;
+  }
+}
+
+
+/*
+  إنهاء الطلب.
+
+  أول شيء نوقف الصوت الخاص بالترابيزة،
+  ثم نحدث الطلب في Firestore إلى done.
+*/
+async function completeCall(id){
+
+  try{
+
+    const requestEl=
+      document.querySelector(
+        `.request[data-id="${id}"]`
+      );
+
+
+    let tableNumber=null;
+
+
+    if(requestEl){
+
+      const numberElement=
+        requestEl.querySelector('.num');
+
+      if(numberElement){
+        tableNumber=
+          Number(numberElement.textContent.trim());
+      }
+
+    }
+
+
+    /*
+      مهم:
+      نقطع الصوت فورًا قبل انتظار Firestore.
+    */
+    if(Number.isInteger(tableNumber)){
+
+      stopAnnouncementForTable(
+        tableNumber
+      );
+
+    }
+
+
+    await updateDoc(
+      doc(db,'calls',id),
+      {
+        status:'done',
+        completedAt:Timestamp.now()
+      }
+    );
+
+
+    toast('تم إنهاء الطلب.');
+
+
+  }catch(e){
+
+    console.error(e);
+
+    toast('تعذر إنهاء الطلب.');
+
+  }
+}
+
+
+/*
+  تشغيل إعلان صوتي واحد.
+*/
 function speak(tableNumber){
-  if(!audioEnabled||!('speechSynthesis' in window))return Promise.resolve();
-  return new Promise(resolve=>{const u=new SpeechSynthesisUtterance(`الترابيزة رقم ${tableNumber} تطلب الويتر`);u.lang='ar-EG';u.rate=.9;u.pitch=1;u.volume=1;u.onend=resolve;u.onerror=resolve;window.speechSynthesis.speak(u)})
+
+  if(
+    !audioEnabled ||
+    !('speechSynthesis' in window)
+  ){
+
+    return Promise.resolve();
+  }
+
+
+  return new Promise(resolve=>{
+
+    const u=
+      new SpeechSynthesisUtterance(
+        `الترابيزة رقم ${tableNumber} تطلب الويتر`
+      );
+
+
+    u.lang='ar-EG';
+    u.rate=.9;
+    u.pitch=1;
+    u.volume=1;
+
+
+    u.onend=resolve;
+    u.onerror=resolve;
+
+
+    window.speechSynthesis.speak(u);
+
+  });
 }
-async function drainQueue(){if(audioBusy||!audioEnabled||!queue.length)return;audioBusy=true;const item=queue.shift();for(let i=0;i<APP_CONFIG.announcementRepeats;i++){await speak(item.tableNumber);if(i<APP_CONFIG.announcementRepeats-1)await new Promise(r=>setTimeout(r,APP_CONFIG.announcementGapMs))}audioBusy=false;if(queue.length)drainQueue()}
-function queueAnnouncements(items){if(firstSnapshot){items.forEach(item=>seenIds.add(item.id));firstSnapshot=false;return}if(!audioEnabled)return;for(const item of items){if(!seenIds.has(item.id)){seenIds.add(item.id);queue.push(item)}}drainQueue()}
-function subscribe(){if(unsubscribe)unsubscribe();const q=query(collection(db,'calls'),where('status','==','pending'),orderBy('createdAt','asc'));unsubscribe=onSnapshot(q,snap=>{const items=snap.docs.map(d=>({id:d.id,...d.data()}));render(items);queueAnnouncements(items);updateTodayCount()},err=>{console.error(err);toast('تعذر تحديث الطلبات اللحظية.')})}
-async function updateTodayCount(){try{const d=new Date();d.setHours(0,0,0,0);const q=query(collection(db,'calls'),where('createdAt','>=',Timestamp.fromDate(d)));const result=await getCountFromServer(q);document.getElementById('todayCount').textContent=String(result.data().count)}catch(e){console.error(e);document.getElementById('todayCount').textContent='—'}}
-function enableAudio(){audioEnabled=true;audioState.textContent='مفعل';document.getElementById('enableAudio').textContent='🔊 الصوت مفعل';document.getElementById('enableAudio').disabled=true;const u=new SpeechSynthesisUtterance('تم تفعيل صوت النظام');u.lang='ar-EG';u.volume=.7;window.speechSynthesis?.speak(u);toast('تم تفعيل الصوت. اترك لوحة التحكم مفتوحة.')}
-document.getElementById('enableAudio').addEventListener('click',enableAudio);
-document.getElementById('logout').addEventListener('click',()=>signOut(auth));
-document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const err=document.getElementById('loginError');err.textContent='';try{await signInWithEmailAndPassword(auth,document.getElementById('email').value.trim(),document.getElementById('password').value)}catch(x){console.error(x);err.textContent='بيانات الدخول غير صحيحة أو الحساب غير مفعّل.'}});
-try{const app=initializeApp(firebaseConfig);db=getFirestore(app);auth=getAuth(app);onAuthStateChanged(auth,user=>{if(user){loginView.style.display='none';dashboard.style.display='block';subscribe()}else{dashboard.style.display='none';loginView.style.display='block';if(unsubscribe){unsubscribe();unsubscribe=null}}})}catch(e){console.error(e);document.getElementById('loginError').textContent='لم يتم إعداد Firebase بعد.'}
-setInterval(()=>{document.querySelectorAll('.age').forEach(el=>{const id=el.closest('.request')?.dataset.id;/* refresh handled by snapshot; this keeps initial display */});},10000);
+
+
+/*
+  تشغيل طابور الإعلانات.
+
+  كل طلب يتم تشغيله 3 مرات حسب APP_CONFIG.
+  إذا ضغط الويتر "تم" أثناء الكلام،
+  يتم إيقاف الإعلان فورًا ولا يتم تكراره.
+*/
+async function drainQueue(){
+
+  if(
+    audioBusy ||
+    !audioEnabled ||
+    !queue.length
+  ){
+
+    return;
+  }
+
+
+  audioBusy=true;
+
+
+  try{
+
+    while(queue.length){
+
+      const item=queue.shift();
+
+
+      /*
+        لو الطلب تم إنهاؤه أثناء وجوده
+        في الطابور، نتجاهله.
+      */
+      if(
+        cancelledTables.has(
+          Number(item.tableNumber)
+        )
+      ){
+
+        continue;
+
+      }
+
+
+      currentAnnouncementTable=
+        Number(item.tableNumber);
+
+
+      for(
+        let i=0;
+        i<APP_CONFIG.announcementRepeats;
+        i++
+      ){
+
+
+        /*
+          فحص قبل كل تكرار.
+        */
+        if(
+          cancelledTables.has(
+            Number(item.tableNumber)
+          )
+        ){
+
+          break;
+
+        }
+
+
+        await speak(
+          item.tableNumber
+        );
+
+
+        /*
+          فحص بعد انتهاء الكلام.
+        */
+        if(
+          cancelledTables.has(
+            Number(item.tableNumber)
+          )
+        ){
+
+          break;
+
+        }
+
+
+        if(
+          i<
+          APP_CONFIG.announcementRepeats-1
+        ){
+
+          await new Promise(resolve=>{
+
+            setTimeout(
+              resolve,
+              APP_CONFIG.announcementGapMs
+            );
+
+          });
+
+        }
+
+      }
+
+
+      currentAnnouncementTable=null;
+
+    }
+
+
+  }finally{
+
+    currentAnnouncementTable=null;
+
+    audioBusy=false;
+
+
+    if(queue.length){
+
+      drainQueue();
+
+    }
+
+  }
+}
+
+
+/*
+  إضافة الطلبات الجديدة إلى طابور الصوت.
+*/
+function queueAnnouncements(items){
+
+  /*
+    أول Snapshot عند فتح الداشبورد:
+    لا نريد إعادة نطق الطلبات القديمة.
+  */
+  if(firstSnapshot){
+
+    items.forEach(
+      item=>seenIds.add(item.id)
+    );
+
+    firstSnapshot=false;
+
+    return;
+  }
+
+
+  if(!audioEnabled) return;
+
+
+  for(const item of items){
+
+    if(!seenIds.has(item.id)){
+
+      seenIds.add(item.id);
+
+
+      /*
+        لو جاءت طلبية جديدة لنفس الترابيزة
+        بعد إنهاء الطلب السابق، نسمح لها
+        بالتحدث من جديد.
+      */
+      cancelledTables.delete(
+        Number(item.tableNumber)
+      );
+
+
+      queue.push(item);
+
+    }
+
+  }
+
+
+  drainQueue();
+}
+
+
+function subscribe(){
+
+  if(unsubscribe){
+
+    unsubscribe();
+
+  }
+
+
+  const q=
+    query(
+      collection(db,'calls'),
+      where('status','==','pending'),
+      orderBy('createdAt','asc')
+    );
+
+
+  unsubscribe=
+    onSnapshot(
+      q,
+
+      snap=>{
+
+        const items=
+          snap.docs.map(
+            d=>({
+              id:d.id,
+              ...d.data()
+            })
+          );
+
+
+        render(items);
+
+        queueAnnouncements(items);
+
+        updateTodayCount();
+
+      },
+
+      err=>{
+
+        console.error(err);
+
+        toast(
+          'تعذر تحديث الطلبات اللحظية.'
+        );
+
+      }
+    );
+}
+
+
+async function updateTodayCount(){
+
+  try{
+
+    const d=new Date();
+
+    d.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+
+
+    const q=
+      query(
+        collection(db,'calls'),
+        where(
+          'createdAt',
+          '>=',
+          Timestamp.fromDate(d)
+        )
+      );
+
+
+    const result=
+      await getCountFromServer(q);
+
+
+    todayCount.textContent=
+      String(
+        result.data().count
+      );
+
+
+  }catch(e){
+
+    console.error(e);
+
+    todayCount.textContent='—';
+
+  }
+}
+
+
+/*
+  تفعيل الصوت بواسطة المستخدم.
+*/
+function enableAudio(){
+
+  audioEnabled=true;
+
+  audioState.textContent='مفعل';
+
+  document.getElementById(
+    'enableAudio'
+  ).textContent='🔊 الصوت مفعل';
+
+  document.getElementById(
+    'enableAudio'
+  ).disabled=true;
+
+
+  /*
+    رسالة اختبار صغيرة للتأكد أن المتصفح
+    سمح بالصوت بعد ضغط المستخدم.
+  */
+  if('speechSynthesis' in window){
+
+    const u=
+      new SpeechSynthesisUtterance(
+        'تم تفعيل صوت النظام'
+      );
+
+    u.lang='ar-EG';
+    u.volume=.7;
+
+    window.speechSynthesis.speak(u);
+
+  }
+
+
+  toast(
+    'تم تفعيل الصوت. اترك لوحة التحكم مفتوحة.'
+  );
+}
+
+
+document
+  .getElementById('enableAudio')
+  .addEventListener(
+    'click',
+    enableAudio
+  );
+
+
+document
+  .getElementById('logout')
+  .addEventListener(
+    'click',
+    ()=>signOut(auth)
+  );
+
+
+document
+  .getElementById('loginForm')
+  .addEventListener(
+    'submit',
+    async e=>{
+
+      e.preventDefault();
+
+
+      const err=
+        document.getElementById(
+          'loginError'
+        );
+
+
+      err.textContent='';
+
+
+      try{
+
+        await signInWithEmailAndPassword(
+          auth,
+          document
+            .getElementById('email')
+            .value
+            .trim(),
+          document
+            .getElementById('password')
+            .value
+        );
+
+
+      }catch(x){
+
+        console.error(x);
+
+        err.textContent=
+          'بيانات الدخول غير صحيحة أو الحساب غير مفعّل.';
+
+      }
+
+    }
+  );
+
+
+try{
+
+  const app=
+    initializeApp(firebaseConfig);
+
+
+  db=
+    getFirestore(app);
+
+
+  auth=
+    getAuth(app);
+
+
+  onAuthStateChanged(
+    auth,
+    user=>{
+
+      if(user){
+
+        loginView.style.display='none';
+
+        dashboard.style.display='block';
+
+        subscribe();
+
+
+      }else{
+
+        dashboard.style.display='none';
+
+        loginView.style.display='block';
+
+
+        if(unsubscribe){
+
+          unsubscribe();
+
+          unsubscribe=null;
+
+        }
+
+      }
+
+    }
+  );
+
+
+}catch(e){
+
+  console.error(e);
+
+  document.getElementById(
+    'loginError'
+  ).textContent=
+    'لم يتم إعداد Firebase بعد.';
+
+}
+
+
+/*
+  تحديث عرض عمر الطلبات بشكل دوري.
+*/
+setInterval(()=>{
+
+  document
+    .querySelectorAll('.request')
+    .forEach(request=>{
+
+      /*
+        إعادة تحميل snapshot من Firestore
+        ليست مطلوبة هنا؛ هذا الجزء موجود
+        فقط للحفاظ على السلوك السابق.
+      */
+
+      const id=
+        request.dataset.id;
+
+    });
+
+},10000);
+
 </script>
-</body></html>
+
+</body>
+</html>
