@@ -1,30 +1,121 @@
 rules_version = '2';
+
 service cloud.firestore {
+
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
+
+    /*
+      المستخدم المسجل دخول.
+    */
+    function signedIn() {
+      return request.auth != null;
+    }
+
+
+    /*
+      ==============================
+      TABLES
+      ==============================
+    */
 
     match /tables/{tableId} {
+
+      /*
+        القراءة للمدير المسجل فقط.
+      */
       allow read: if signedIn();
+
+      /*
+        لا يوجد تعديل مباشر من التطبيق.
+      */
       allow write: if false;
     }
 
-    match /calls/{callId} {
-      // Customer: create a minimal pending call only. No client-side status manipulation.
-      allow create: if
-        request.resource.data.keys().hasOnly(['tableNumber','status','createdAt','completedAt']) &&
-        request.resource.data.tableNumber is int &&
-        request.resource.data.tableNumber >= 1 &&
-        request.resource.data.tableNumber <= 20 &&
-        request.resource.data.status == 'pending' &&
-        request.resource.data.completedAt == null &&
-        request.resource.data.createdAt == request.time;
 
-      // Dashboard only.
+    /*
+      ==============================
+      CALLS
+      ==============================
+    */
+
+    match /calls/{callId} {
+
+      /*
+        العميل يستطيع إنشاء طلب جديد فقط.
+
+        الشروط:
+        - الحقول المسموح بها محددة مسبقًا.
+        - رقم الترابيزة Integer.
+        - الترابيزة من 1 إلى 20.
+        - الحالة يجب أن تكون pending.
+        - completedAt يجب أن تكون null.
+        - createdAt يجب أن يكون Timestamp حديثًا
+          صادرًا من وقت الطلب.
+      */
+
+      allow create: if
+
+        request.resource.data.keys().hasOnly([
+          'tableNumber',
+          'status',
+          'createdAt',
+          'completedAt'
+        ])
+
+        && request.resource.data.tableNumber is int
+
+        && request.resource.data.tableNumber >= 1
+
+        && request.resource.data.tableNumber <= 20
+
+        && request.resource.data.status == 'pending'
+
+        && request.resource.data.completedAt == null
+
+        && request.resource.data.createdAt is timestamp
+
+        && request.resource.data.createdAt >
+           request.time - duration.value(60, 's');
+
+
+      /*
+        المدير المسجل يستطيع قراءة الطلبات.
+      */
       allow read: if signedIn();
-      allow update: if signedIn() &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','completedAt']) &&
-        request.resource.data.status == 'done' &&
-        request.resource.data.completedAt is timestamp;
+
+
+      /*
+        المدير المسجل يستطيع إنهاء الطلب فقط.
+
+        مسموح بتغيير:
+        - status
+        - completedAt
+
+        وغير مسموح بتغيير:
+        - tableNumber
+        - createdAt
+        - أي بيانات أخرى.
+      */
+
+      allow update: if
+
+        signedIn()
+
+        && request.resource.data.diff(resource.data)
+             .affectedKeys()
+             .hasOnly([
+               'status',
+               'completedAt'
+             ])
+
+        && request.resource.data.status == 'done'
+
+        && request.resource.data.completedAt is timestamp;
+
+
+      /*
+        لا يوجد حذف من التطبيق.
+      */
       allow delete: if false;
     }
   }
