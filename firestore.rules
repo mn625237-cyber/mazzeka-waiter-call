@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+
+    match /tables/{tableId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /calls/{callId} {
+      // Customer: create a minimal pending call only. No client-side status manipulation.
+      allow create: if
+        request.resource.data.keys().hasOnly(['tableNumber','status','createdAt','completedAt']) &&
+        request.resource.data.tableNumber is int &&
+        request.resource.data.tableNumber >= 1 &&
+        request.resource.data.tableNumber <= 20 &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.completedAt == null &&
+        request.resource.data.createdAt == request.time;
+
+      // Dashboard only.
+      allow read: if signedIn();
+      allow update: if signedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','completedAt']) &&
+        request.resource.data.status == 'done' &&
+        request.resource.data.completedAt is timestamp;
+      allow delete: if false;
+    }
+  }
+}

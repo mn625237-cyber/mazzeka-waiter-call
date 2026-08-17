@@ -1,0 +1,6 @@
+{
+  "cleanUrls": true,
+  "headers": [
+    {"source":"/dashboard.html","headers":[{"key":"Cache-Control","value":"no-store"}]}
+  ]
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070708">
+  <meta name="description" content="نظام نداء الويتر في Mazzeka">
+  <title>Mazzeka — اطلب الويتر</title>
+  <link rel="icon" href="assets/mazzeka-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#050506;--panel:#0e0e11;--line:#2a2224;--red:#ff1738;--red2:#ff4a60;--text:#fff;--muted:#b7b2b4;--danger:#ff4d67;--shadow:0 0 35px rgba(255,23,56,.18)}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif} body{min-height:100dvh;overflow-x:hidden}
+    .page{min-height:100dvh;display:flex;justify-content:center;padding:22px 14px 28px;position:relative;isolation:isolate}
+    .page:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 50% 35%,rgba(255,20,55,.13),transparent 38%),linear-gradient(180deg,#080809,#030304 72%);z-index:-2}
+    .page:after{content:"";position:fixed;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,255,255,.035),transparent 32%);z-index:-1;pointer-events:none}
+    .card{width:min(100%,470px);min-height:calc(100dvh - 50px);border:1px solid #272326;border-radius:30px;background:linear-gradient(180deg,rgba(18,17,19,.97),rgba(5,5,6,.98));box-shadow:0 25px 80px rgba(0,0,0,.55),var(--shadow);padding:22px 18px 20px;display:flex;flex-direction:column;align-items:center}
+    .logo{width:min(82%,330px);height:auto;display:block;object-fit:contain;filter:drop-shadow(0 0 12px rgba(255,20,55,.42));mix-blend-mode:screen;margin:4px auto 18px}
+    .table-label{font-size:20px;font-weight:700;color:#eee;margin-top:4px}.table-number{font-size:clamp(72px,22vw,112px);line-height:1;font-weight:800;letter-spacing:-4px;text-shadow:0 0 22px rgba(255,255,255,.08);margin:8px 0 28px}
+    .call-btn{width:min(72vw,285px);aspect-ratio:1;border-radius:50%;border:2px solid var(--red2);background:radial-gradient(circle at 50% 42%,rgba(255,30,60,.36),rgba(255,0,32,.08) 50%,rgba(255,0,32,.02) 72%);color:#fff;box-shadow:0 0 20px rgba(255,23,56,.4),inset 0 0 45px rgba(255,23,56,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,opacity .16s ease;font:inherit}
+    .call-btn:hover{transform:scale(1.025);box-shadow:0 0 35px rgba(255,23,56,.58),inset 0 0 55px rgba(255,23,56,.15)} .call-btn:active{transform:scale(.975)} .call-btn:disabled{cursor:default;opacity:.58;transform:none;box-shadow:0 0 12px rgba(255,23,56,.18)}
+    .bell{width:82px;height:82px;filter:drop-shadow(0 0 10px rgba(255,255,255,.22))}.call-text{font-size:25px;font-weight:800}.call-sub{font-size:13px;color:#e7dfe1}
+    .cooldown{width:100%;margin-top:26px;padding:17px 16px;border:1px solid #282426;border-radius:18px;background:rgba(16,15,17,.88);text-align:center}.cooldown.hidden{display:none}.cooldown p{margin:0;color:#ddd;font-size:14px}.timer{font-size:35px;font-weight:800;color:var(--red);line-height:1.15;margin-top:2px;font-variant-numeric:tabular-nums}
+    .message{width:100%;margin-top:14px;min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid transparent;border-radius:16px;padding:12px 14px;font-size:14px}.message.success{background:rgba(28,170,85,.08);border-color:rgba(28,170,85,.22);color:#c8f7d9}.message.error{background:rgba(255,23,56,.08);border-color:rgba(255,23,56,.24);color:#ffc3cc}.message.hidden{display:none}
+    .footer{margin-top:auto;padding-top:25px;color:#777;font-size:12px}.footer strong{color:#a9a2a4;font-weight:600}
+    .loading{min-height:55vh;display:grid;place-items:center;color:#aaa}.spinner{width:38px;height:38px;border:3px solid #30282a;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    @media (max-height:700px){.card{padding-top:15px}.logo{width:250px;margin-bottom:10px}.table-number{font-size:78px;margin-bottom:18px}.call-btn{width:210px}.cooldown{margin-top:15px}}
+    @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="card" id="app" aria-live="polite">
+      <div class="loading"><div class="spinner" aria-label="جاري التحميل"></div></div>
+    </section>
+  </main>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+    import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+    import { firebaseConfig, APP_CONFIG } from './config.js';
+
+    const appEl = document.getElementById('app');
+    const params = new URLSearchParams(location.search);
+    const table = Number(params.get('table'));
+    const validTable = Number.isInteger(table) && table >= 1 && table <= APP_CONFIG.maxTables;
+    const cooldownKey = `mazzeka:last-call:${table}`;
+    let db = null;
+
+    function render(){
+      if(!validTable){
+        appEl.innerHTML = `<img class="logo" src="assets/mazzeka-logo.png" alt="Mazzeka"><div class="message error">رابط الترابيزة غير صحيح.</div><div class="footer">يرجى مسح QR الموجود على الترابيزة.</div>`;
+        return;
+      }
+      appEl.innerHTML = `
+        <img class="logo" src="assets/mazzeka-logo.png" alt="Mazzeka">
+        <div class="table-label">ترابيزة رقم</div>
+        <div class="table-number" aria-label="ترابيزة ${table}">${table}</div>
+        <button class="call-btn" id="callBtn" type="button" aria-label="اطلب الويتر">
+          <svg class="bell" viewBox="0 0 100 100" aria-hidden="true"><path d="M25 67h50M31 67V45c0-15 8-25 19-28v-5h0c0-3 2-5 5-5s5 2 5 5v5c11 3 19 13 19 28v22M40 76c2 8 8 12 15 12s13-4 15-12" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="call-text">اطلب الويتر</span>
+          <span class="call-sub">اضغط مرة واحدة لطلب الخدمة</span>
+        </button>
+        <div class="cooldown hidden" id="cooldown"><p>يمكنك طلب الويتر مرة أخرى بعد</p><div class="timer" id="timer">01:00</div></div>
+        <div class="message hidden" id="message"></div>
+        <div class="footer"><strong>Mazzeka</strong> · خدمة الطاولة</div>`;
+      document.getElementById('callBtn').addEventListener('click', sendCall);
+      restoreCooldown();
+    }
+
+    function setMessage(text,type){const el=document.getElementById('message');el.textContent=text;el.className=`message ${type}`}
+    function setCooldown(seconds){
+      const btn=document.getElementById('callBtn'), box=document.getElementById('cooldown'), timer=document.getElementById('timer');
+      if(seconds<=0){box.classList.add('hidden');btn.disabled=false;localStorage.removeItem(cooldownKey);return}
+      btn.disabled=true;box.classList.remove('hidden');timer.textContent=`00:${String(seconds).padStart(2,'0')}`;
+      localStorage.setItem(cooldownKey,String(Date.now()+seconds*1000));
+    }
+    function restoreCooldown(){
+      const until=Number(localStorage.getItem(cooldownKey)||0); if(until<=Date.now()) return;
+      let left=Math.ceil((until-Date.now())/1000);setCooldown(left);
+      const id=setInterval(()=>{left=Math.ceil((until-Date.now())/1000);setCooldown(left);if(left<=0)clearInterval(id)},250);
+    }
+    async function sendCall(){
+      const btn=document.getElementById('callBtn'); if(btn.disabled)return;
+      btn.disabled=true;setMessage('جاري إرسال الطلب…','success');
+      try{
+        if(!db) throw new Error('Firebase غير مهيأ');
+        await addDoc(collection(db,'calls'),{tableNumber:table,status:'pending',createdAt:serverTimestamp(),completedAt:null});
+        setMessage('تم إرسال الطلب. الويتر قادم إليك حالًا.','success');setCooldown(60);
+      }catch(e){console.error(e);btn.disabled=false;setMessage('تعذر إرسال الطلب الآن. حاول مرة أخرى.','error')}
+    }
+    try{db=initializeApp(firebaseConfig)&&getFirestore();render()}catch(e){console.error(e);appEl.innerHTML=`<img class="logo" src="assets/mazzeka-logo.png" alt="Mazzeka"><div class="message error">النظام غير مُهيأ بعد.</div>`}
+  </script>
+</body>
+</html>
