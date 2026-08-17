@@ -1,0 +1,1 @@
+Mazzeka Café Waiter Call System — Customer: https://mazzeka-waiter-call.vercel.app | Dashboard: https://mazzeka-waiter-call.vercel.app/dashboard
