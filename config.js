@@ -1,5 +1,6 @@
 // ضع بيانات Firebase الخاصة بمشروع Mazzeka هنا.
 // لا تضع Service Account أو أي مفتاح سري في هذا الملف.
+
 export const firebaseConfig = {
   apiKey: "AIzaSyDKsHH6Vvm8r2BjJ42MCO-JyeiAoINKeVY",
   authDomain: "mazzeka-waiter-call.firebaseapp.com",
@@ -11,7 +12,7 @@ export const firebaseConfig = {
 
 export const APP_CONFIG = {
   maxTables: 20,
-  cooldownSeconds: 60,
+  cooldownSeconds: 30,
   announcementRepeats: 3,
   announcementGapMs: 1800
 };
