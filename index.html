@@ -9,6 +9,7 @@
   <link rel="icon" href="assets/mazzeka-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.gstatic.com" rel="preconnect">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{--bg:#050506;--panel:#0e0e11;--line:#2a2224;--red:#ff1738;--red2:#ff4a60;--text:#fff;--muted:#b7b2b4;--danger:#ff4d67;--shadow:0 0 35px rgba(255,23,56,.18)}
@@ -36,6 +37,7 @@
       <div class="loading"><div class="spinner" aria-label="جاري التحميل"></div></div>
     </section>
   </main>
+
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
     import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
@@ -45,52 +47,174 @@
     const params = new URLSearchParams(location.search);
     const table = Number(params.get('table'));
     const validTable = Number.isInteger(table) && table >= 1 && table <= APP_CONFIG.maxTables;
+
+    const COOLDOWN_SECONDS = 30;
     const cooldownKey = `mazzeka:last-call:${table}`;
+
     let db = null;
+    let cooldownInterval = null;
 
     function render(){
       if(!validTable){
         appEl.innerHTML = `<img class="logo" src="assets/mazzeka-logo.png" alt="Mazzeka"><div class="message error">رابط الترابيزة غير صحيح.</div><div class="footer">يرجى مسح QR الموجود على الترابيزة.</div>`;
         return;
       }
+
       appEl.innerHTML = `
         <img class="logo" src="assets/mazzeka-logo.png" alt="Mazzeka">
         <div class="table-label">ترابيزة رقم</div>
         <div class="table-number" aria-label="ترابيزة ${table}">${table}</div>
+
         <button class="call-btn" id="callBtn" type="button" aria-label="اطلب الويتر">
-          <svg class="bell" viewBox="0 0 100 100" aria-hidden="true"><path d="M25 67h50M31 67V45c0-15 8-25 19-28v-5h0c0-3 2-5 5-5s5 2 5 5v5c11 3 19 13 19 28v22M40 76c2 8 8 12 15 12s13-4 15-12" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="bell" viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M25 67h50M31 67V45c0-15 8-25 19-28v-5h0c0-3 2-5 5-5s5 2 5 5v5c11 3 19 13 19 28v22M40 76c2 8 8 12 15 12s13-4 15-12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="5"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
           <span class="call-text">اطلب الويتر</span>
           <span class="call-sub">اضغط مرة واحدة لطلب الخدمة</span>
         </button>
-        <div class="cooldown hidden" id="cooldown"><p>يمكنك طلب الويتر مرة أخرى بعد</p><div class="timer" id="timer">01:00</div></div>
+
+        <div class="cooldown hidden" id="cooldown">
+          <p>يمكنك طلب الويتر مرة أخرى بعد</p>
+          <div class="timer" id="timer">00:30</div>
+        </div>
+
         <div class="message hidden" id="message"></div>
+
         <div class="footer"><strong>Mazzeka</strong> · خدمة الطاولة</div>`;
+
       document.getElementById('callBtn').addEventListener('click', sendCall);
       restoreCooldown();
     }
 
-    function setMessage(text,type){const el=document.getElementById('message');el.textContent=text;el.className=`message ${type}`}
+    function setMessage(text,type){
+      const el=document.getElementById('message');
+      if(!el)return;
+
+      el.textContent=text;
+      el.className=`message ${type}`;
+    }
+
     function setCooldown(seconds){
-      const btn=document.getElementById('callBtn'), box=document.getElementById('cooldown'), timer=document.getElementById('timer');
-      if(seconds<=0){box.classList.add('hidden');btn.disabled=false;localStorage.removeItem(cooldownKey);return}
-      btn.disabled=true;box.classList.remove('hidden');timer.textContent=`00:${String(seconds).padStart(2,'0')}`;
+      const btn=document.getElementById('callBtn');
+      const box=document.getElementById('cooldown');
+      const timer=document.getElementById('timer');
+
+      if(!btn || !box || !timer)return;
+
+      if(seconds<=0){
+        box.classList.add('hidden');
+        btn.disabled=false;
+        btn.querySelector('.call-text').textContent='اطلب الويتر';
+        btn.querySelector('.call-sub').textContent='اضغط مرة واحدة لطلب الخدمة';
+        localStorage.removeItem(cooldownKey);
+
+        if(cooldownInterval){
+          clearInterval(cooldownInterval);
+          cooldownInterval=null;
+        }
+
+        return;
+      }
+
+      btn.disabled=true;
+      box.classList.remove('hidden');
+
+      timer.textContent=`00:${String(seconds).padStart(2,'0')}`;
+
+      btn.querySelector('.call-text').textContent='تم إرسال الطلب';
+      btn.querySelector('.call-sub').textContent=`يمكنك الطلب مرة أخرى بعد ${seconds} ثانية`;
+
       localStorage.setItem(cooldownKey,String(Date.now()+seconds*1000));
     }
+
+    function startCooldown(seconds){
+      const until=Date.now()+seconds*1000;
+
+      localStorage.setItem(cooldownKey,String(until));
+
+      if(cooldownInterval){
+        clearInterval(cooldownInterval);
+      }
+
+      function update(){
+        const left=Math.max(0,Math.ceil((until-Date.now())/1000));
+        setCooldown(left);
+
+        if(left<=0 && cooldownInterval){
+          clearInterval(cooldownInterval);
+          cooldownInterval=null;
+        }
+      }
+
+      update();
+      cooldownInterval=setInterval(update,250);
+    }
+
     function restoreCooldown(){
-      const until=Number(localStorage.getItem(cooldownKey)||0); if(until<=Date.now()) return;
-      let left=Math.ceil((until-Date.now())/1000);setCooldown(left);
-      const id=setInterval(()=>{left=Math.ceil((until-Date.now())/1000);setCooldown(left);if(left<=0)clearInterval(id)},250);
+      const until=Number(localStorage.getItem(cooldownKey)||0);
+
+      if(until<=Date.now()){
+        localStorage.removeItem(cooldownKey);
+        return;
+      }
+
+      const left=Math.ceil((until-Date.now())/1000);
+      startCooldown(left);
     }
+
     async function sendCall(){
-      const btn=document.getElementById('callBtn'); if(btn.disabled)return;
-      btn.disabled=true;setMessage('جاري إرسال الطلب…','success');
+      const btn=document.getElementById('callBtn');
+
+      if(!btn || btn.disabled)return;
+
+      btn.disabled=true;
+      btn.querySelector('.call-text').textContent='جاري الإرسال...';
+      btn.querySelector('.call-sub').textContent='يرجى الانتظار';
+
+      setMessage('جاري إرسال طلب الويتر…','success');
+
       try{
-        if(!db) throw new Error('Firebase غير مهيأ');
-        await addDoc(collection(db,'calls'),{tableNumber:table,status:'pending',createdAt:serverTimestamp(),completedAt:null});
-        setMessage('تم إرسال الطلب. الويتر قادم إليك حالًا.','success');setCooldown(60);
-      }catch(e){console.error(e);btn.disabled=false;setMessage('تعذر إرسال الطلب الآن. حاول مرة أخرى.','error')}
+        if(!db)throw new Error('Firebase غير مهيأ');
+
+        await addDoc(collection(db,'calls'),{
+          tableNumber:table,
+          status:'pending',
+          createdAt:serverTimestamp(),
+          completedAt:null
+        });
+
+        setMessage('تم إرسال الطلب. الويتر قادم إليك حالًا.','success');
+
+        startCooldown(COOLDOWN_SECONDS);
+
+      }catch(e){
+        console.error(e);
+
+        btn.disabled=false;
+        btn.querySelector('.call-text').textContent='اطلب الويتر';
+        btn.querySelector('.call-sub').textContent='اضغط مرة واحدة لطلب الخدمة';
+
+        setMessage('تعذر إرسال الطلب الآن. تحقق من الاتصال وحاول مرة أخرى.','error');
+      }
     }
-    try{db=initializeApp(firebaseConfig)&&getFirestore();render()}catch(e){console.error(e);appEl.innerHTML=`<img class="logo" src="assets/mazzeka-logo.png" alt="Mazzeka"><div class="message error">النظام غير مُهيأ بعد.</div>`}
+
+    try{
+      const app=initializeApp(firebaseConfig);
+      db=getFirestore(app);
+      render();
+    }catch(e){
+      console.error(e);
+
+      appEl.innerHTML=`
+        <img class="logo" src="assets/mazzeka-logo.png" alt="Mazzeka">
+        <div class="message error">تعذر تشغيل النظام الآن. يرجى المحاولة مرة أخرى.</div>
+        <div class="footer">Mazzeka · خدمة الطاولة</div>`;
+    }
   </script>
 </body>
 </html>
