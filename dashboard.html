@@ -690,11 +690,14 @@ const connectionStatus =
 const loginButton =
   document.getElementById('loginButton');
 
+const enableAudioButton =
+  document.getElementById('enableAudio');
 
 
-let db;
 
-let auth;
+let db = null;
+
+let auth = null;
 
 let unsubscribe = null;
 
@@ -710,16 +713,24 @@ let firstSnapshot = true;
 
 
 /*
-  الترابيزة التي يتم تشغيل إعلانها حاليًا.
+  معرّف الطلب الذي يتم تشغيله حاليًا.
+  أصبح الاعتماد على callId بدل رقم الترابيزة
+  حتى لا تتداخل طلبات نفس الترابيزة.
 */
-let currentAnnouncementTable = null;
+let currentAnnouncementId = null;
 
 
 /*
-  الترابيزات التي تم إنهاء طلباتها.
+  الطلبات التي تم إنهاؤها يدويًا.
+  نستخدم callId وليس رقم الترابيزة.
 */
-const cancelledTables =
-  new Set();
+const cancelledIds = new Set();
+
+
+/*
+  مؤقتات الـtoast السابقة حتى لا تتراكم.
+*/
+let toastTimer = null;
 
 
 
@@ -728,16 +739,25 @@ function toast(text){
   const el =
     document.getElementById('toast');
 
-  el.textContent = text;
+  el.textContent =
+    text;
 
   el.classList.add('show');
 
 
-  setTimeout(()=>{
+  if(toastTimer){
 
-    el.classList.remove('show');
+    clearTimeout(toastTimer);
 
-  },2600);
+  }
+
+
+  toastTimer =
+    setTimeout(()=>{
+
+      el.classList.remove('show');
+
+    },2600);
 
 }
 
@@ -748,11 +768,28 @@ function showConnectionStatus(text){
   if(!connectionStatus){
 
     return;
+
   }
 
 
-  connectionStatus.innerHTML =
-    `<span class="dot"></span>${text}`;
+  /*
+    النص هنا ثابت داخليًا وليس من Firestore،
+    لذلك لا توجد حاجة لإدخاله كـHTML ديناميكي.
+  */
+  connectionStatus.textContent =
+    text;
+
+
+  const dot =
+    document.createElement('span');
+
+  dot.className =
+    'dot';
+
+
+  connectionStatus.prepend(
+    dot
+  );
 
 }
 
@@ -802,8 +839,7 @@ window.addEventListener(
 
 
 /*
-  إلغاء Firestore listener والصوت
-  عند إغلاق الصفحة.
+  تنظيف كل موارد الصفحة عند إغلاقها.
 */
 window.addEventListener(
   'beforeunload',
@@ -813,9 +849,14 @@ window.addEventListener(
 
       unsubscribe();
 
-      unsubscribe = null;
+      unsubscribe =
+        null;
 
     }
+
+
+    queue =
+      [];
 
 
     if('speechSynthesis' in window){
@@ -842,9 +883,10 @@ function formatAge(ts){
     Math.max(
       0,
       Math.floor(
-        (Date.now() -
-          ts.toDate().getTime()) /
-        1000
+        (
+          Date.now() -
+          ts.toDate().getTime()
+        ) / 1000
       )
     );
 
@@ -857,7 +899,9 @@ function formatAge(ts){
 
 
   const m =
-    Math.floor(s / 60);
+    Math.floor(
+      s / 60
+    );
 
 
   return `منذ ${m} دقيقة`;
@@ -869,7 +913,7 @@ function formatAge(ts){
 function render(items){
 
   pendingCount.textContent =
-    items.length;
+    String(items.length);
 
 
   if(!items.length){
@@ -883,84 +927,136 @@ function render(items){
 
 
   requestsEl.innerHTML =
-    items.map(x=>`
-
-      <article
-        class="request"
-        data-id="${x.id}"
-      >
-
-        <div>
-
-          <div class="table">
-            ترابيزة رقم
-          </div>
-
-          <div class="num">
-            ${x.tableNumber}
-          </div>
-
-          <div class="age">
-            ◷ ${formatAge(x.createdAt)}
-          </div>
-
-        </div>
+    '';
 
 
-        <button
-          class="done"
-          data-complete="${x.id}"
-          type="button"
-        >
-          ✓ تم
-        </button>
+  for(const item of items){
 
-      </article>
+    const article =
+      document.createElement('article');
 
-    `).join('');
+    article.className =
+      'request';
+
+    article.dataset.id =
+      item.id;
 
 
-  requestsEl
-    .querySelectorAll('[data-complete]')
-    .forEach(button=>{
+    const content =
+      document.createElement('div');
 
-      button.addEventListener(
-        'click',
-        ()=>completeCall(
-          button.dataset.complete
-        )
-      );
 
-    });
+    const tableLabel =
+      document.createElement('div');
+
+    tableLabel.className =
+      'table';
+
+    tableLabel.textContent =
+      'ترابيزة رقم';
+
+
+    const number =
+      document.createElement('div');
+
+    number.className =
+      'num';
+
+    number.textContent =
+      String(item.tableNumber);
+
+
+    const age =
+      document.createElement('div');
+
+    age.className =
+      'age';
+
+    age.textContent =
+      `◷ ${formatAge(item.createdAt)}`;
+
+
+    content.appendChild(
+      tableLabel
+    );
+
+    content.appendChild(
+      number
+    );
+
+    content.appendChild(
+      age
+    );
+
+
+    const done =
+      document.createElement('button');
+
+    done.className =
+      'done';
+
+    done.type =
+      'button';
+
+    done.dataset.complete =
+      item.id;
+
+    done.textContent =
+      '✓ تم';
+
+
+    done.addEventListener(
+      'click',
+      ()=>{
+        completeCall(
+          item.id
+        );
+      }
+    );
+
+
+    article.appendChild(
+      content
+    );
+
+    article.appendChild(
+      done
+    );
+
+
+    requestsEl.appendChild(
+      article
+    );
+
+  }
 
 }
 
 
 
 /*
-  إيقاف إعلان ترابيزة معينة.
+  إيقاف إعلان طلب محدد.
+  لا نعتمد على رقم الترابيزة.
 */
-function stopAnnouncementForTable(
-  tableNumber
+function stopAnnouncementForCall(
+  callId
 ){
 
   queue =
     queue.filter(
       item =>
-        Number(item.tableNumber) !==
-        Number(tableNumber)
+        item.id !== callId
     );
 
 
-  cancelledTables.add(
-    Number(tableNumber)
+  cancelledIds.add(
+    callId
   );
 
 
   if(
-    currentAnnouncementTable !== null &&
-    Number(currentAnnouncementTable) ===
-      Number(tableNumber)
+    currentAnnouncementId ===
+    callId
   ){
 
     if('speechSynthesis' in window){
@@ -970,7 +1066,8 @@ function stopAnnouncementForTable(
     }
 
 
-    currentAnnouncementTable = null;
+    currentAnnouncementId =
+      null;
 
   }
 
@@ -981,56 +1078,59 @@ function stopAnnouncementForTable(
 /*
   إنهاء الطلب.
 */
-async function completeCall(id){
+async function completeCall(
+  id
+){
+
+  const requestElement =
+    document.querySelector(
+      `.request[data-id="${CSS.escape(id)}"]`
+    );
+
+
+  const doneButton =
+    requestElement?.querySelector(
+      '[data-complete]'
+    );
+
+
+  if(doneButton){
+
+    doneButton.disabled =
+      true;
+
+  }
+
+
+  /*
+    نوقف الصوت فورًا قبل انتظار Firestore.
+  */
+  stopAnnouncementForCall(
+    id
+  );
+
 
   try{
 
-    const requestElement =
-      document.querySelector(
-        `.request[data-id="${id}"]`
-      );
+    if(!db){
 
-
-    let tableNumber = null;
-
-
-    if(requestElement){
-
-      const numberElement =
-        requestElement.querySelector(
-          '.num'
-        );
-
-
-      if(numberElement){
-
-        tableNumber =
-          Number(
-            numberElement.textContent.trim()
-          );
-
-      }
-
-    }
-
-
-    /*
-      نقطع الصوت فورًا قبل انتظار Firestore.
-    */
-    if(Number.isInteger(tableNumber)){
-
-      stopAnnouncementForTable(
-        tableNumber
+      throw new Error(
+        'Firestore غير مهيأ'
       );
 
     }
 
 
     await updateDoc(
-      doc(db,'calls',id),
+      doc(
+        db,
+        'calls',
+        id
+      ),
       {
         status:'done',
-        completedAt:Timestamp.now()
+        completedAt:
+          Timestamp.now()
       }
     );
 
@@ -1043,6 +1143,23 @@ async function completeCall(id){
   }catch(e){
 
     console.error(e);
+
+
+    /*
+      إذا فشل التحديث، نسمح للمستخدم
+      بإعادة المحاولة.
+    */
+    cancelledIds.delete(
+      id
+    );
+
+
+    if(doneButton){
+
+      doneButton.disabled =
+        false;
+
+    }
 
 
     toast(
@@ -1058,7 +1175,10 @@ async function completeCall(id){
 /*
   تشغيل إعلان صوتي واحد.
 */
-function speak(tableNumber){
+function speak(
+  tableNumber,
+  callId
+){
 
   if(
     !audioEnabled ||
@@ -1070,38 +1190,67 @@ function speak(tableNumber){
   }
 
 
-  return new Promise(resolve=>{
+  /*
+    إذا تم إلغاء الطلب قبل بدء الكلام،
+    لا نبدأه.
+  */
+  if(
+    cancelledIds.has(callId)
+  ){
 
-    const u =
-      new SpeechSynthesisUtterance(
-        `الترابيزة رقم ${tableNumber} تطلب الويتر`
+    return Promise.resolve();
+
+  }
+
+
+  return new Promise(
+    resolve=>{
+
+      const u =
+        new SpeechSynthesisUtterance(
+          `الترابيزة رقم ${tableNumber} تطلب الويتر`
+        );
+
+
+      u.lang =
+        'ar-EG';
+
+      u.rate =
+        .9;
+
+      u.pitch =
+        1;
+
+      u.volume =
+        1;
+
+
+      u.onend =
+        resolve;
+
+      u.onerror =
+        resolve;
+
+
+      /*
+        speechSynthesis.cancel()
+        قد لا يستدعي onend/onerror
+        في بعض المتصفحات، لذلك يوجد
+        فحص احتياطي خارجي في drainQueue.
+      */
+      window.speechSynthesis.speak(
+        u
       );
 
-
-    u.lang = 'ar-EG';
-
-    u.rate = .9;
-
-    u.pitch = 1;
-
-    u.volume = 1;
-
-
-    u.onend = resolve;
-
-    u.onerror = resolve;
-
-
-    window.speechSynthesis.speak(u);
-
-  });
+    }
+  );
 
 }
 
 
 
 /*
-  تشغيل طابور الإعلانات.
+  تشغيل طابور الإعلانات بالتتابع.
 */
 async function drainQueue(){
 
@@ -1116,7 +1265,8 @@ async function drainQueue(){
   }
 
 
-  audioBusy = true;
+  audioBusy =
+    true;
 
 
   try{
@@ -1127,9 +1277,13 @@ async function drainQueue(){
         queue.shift();
 
 
+      /*
+        الطلب تم إنهاؤه أثناء وجوده
+        في الطابور.
+      */
       if(
-        cancelledTables.has(
-          Number(item.tableNumber)
+        cancelledIds.has(
+          item.id
         )
       ){
 
@@ -1138,19 +1292,23 @@ async function drainQueue(){
       }
 
 
-      currentAnnouncementTable =
-        Number(item.tableNumber);
+      currentAnnouncementId =
+        item.id;
 
 
       for(
         let i = 0;
-        i < APP_CONFIG.announcementRepeats;
+        i <
+          APP_CONFIG.announcementRepeats;
         i++
       ){
 
+        /*
+          فحص قبل كل تكرار.
+        */
         if(
-          cancelledTables.has(
-            Number(item.tableNumber)
+          cancelledIds.has(
+            item.id
           )
         ){
 
@@ -1160,13 +1318,17 @@ async function drainQueue(){
 
 
         await speak(
-          item.tableNumber
+          item.tableNumber,
+          item.id
         );
 
 
+        /*
+          فحص بعد انتهاء الكلام.
+        */
         if(
-          cancelledTables.has(
-            Number(item.tableNumber)
+          cancelledIds.has(
+            item.id
           )
         ){
 
@@ -1196,19 +1358,36 @@ async function drainQueue(){
       }
 
 
-      currentAnnouncementTable = null;
+      if(
+        currentAnnouncementId ===
+        item.id
+      ){
+
+        currentAnnouncementId =
+          null;
+
+      }
 
     }
 
 
   }finally{
 
-    currentAnnouncementTable = null;
+    currentAnnouncementId =
+      null;
 
-    audioBusy = false;
+    audioBusy =
+      false;
 
 
-    if(queue.length){
+    /*
+      إذا وصل طلب أثناء عملية التفريغ،
+      نكمل الطابور.
+    */
+    if(
+      queue.length &&
+      audioEnabled
+    ){
 
       drainQueue();
 
@@ -1223,53 +1402,82 @@ async function drainQueue(){
 /*
   إضافة الطلبات الجديدة إلى طابور الصوت.
 */
-function queueAnnouncements(items){
+function queueAnnouncements(
+  items
+){
 
   /*
-    أول Snapshot:
-    لا ننطق الطلبات القديمة.
+    أول Snapshot عند فتح Dashboard:
+    لا ننطق الطلبات الموجودة مسبقًا.
+    لكن نسجلها حتى لا تعاد إضافتها.
   */
   if(firstSnapshot){
 
     items.forEach(
       item =>
-        seenIds.add(item.id)
+        seenIds.add(
+          item.id
+        )
     );
 
 
-    firstSnapshot = false;
+    firstSnapshot =
+      false;
 
     return;
 
   }
 
 
-  if(!audioEnabled){
+  /*
+    مهم:
+    لا نضع return هنا عندما يكون الصوت
+    غير مفعل.
 
-    return;
-
-  }
-
-
+    الطلب الجديد يجب أن يدخل الطابور
+    حتى لو ضغط المدير "تفعيل الصوت"
+    بعد وصول الطلب.
+  */
   for(const item of items){
 
-    if(!seenIds.has(item.id)){
+    if(
+      !seenIds.has(
+        item.id
+      )
+    ){
 
-      seenIds.add(item.id);
-
-
-      cancelledTables.delete(
-        Number(item.tableNumber)
+      seenIds.add(
+        item.id
       );
 
 
-      queue.push(item);
+      /*
+        إذا كان الطلب نفسه قد تم إلغاؤه
+        سابقًا، فلا نعيده للطابور.
+      */
+      if(
+        !cancelledIds.has(
+          item.id
+        )
+      ){
+
+        queue.push(
+          item
+        );
+
+      }
 
     }
 
   }
 
 
+  /*
+    إذا كان الصوت مفعلاً،
+    يبدأ الطابور فورًا.
+    وإذا لم يكن مفعلاً،
+    يبقى الطلب محفوظًا في queue.
+  */
   drainQueue();
 
 }
@@ -1281,18 +1489,47 @@ function queueAnnouncements(items){
 */
 function subscribe(){
 
-  if(unsubscribe){
+  if(!db){
 
-    unsubscribe();
-
-    unsubscribe = null;
+    return;
 
   }
 
 
+  if(unsubscribe){
+
+    unsubscribe();
+
+    unsubscribe =
+      null;
+
+  }
+
+
+  /*
+    بدء جلسة جديدة للصوت.
+  */
+  seenIds =
+    new Set();
+
+  queue =
+    [];
+
+  cancelledIds.clear();
+
+  currentAnnouncementId =
+    null;
+
+  firstSnapshot =
+    true;
+
+
   const q =
     query(
-      collection(db,'calls'),
+      collection(
+        db,
+        'calls'
+      ),
       where(
         'status',
         '==',
@@ -1313,7 +1550,9 @@ function subscribe(){
       snap=>{
 
         showConnectionStatus(
-          'النظام يعمل'
+          navigator.onLine
+            ? 'النظام يعمل'
+            : 'غير متصل — جاري إعادة الاتصال...'
         );
 
 
@@ -1326,9 +1565,15 @@ function subscribe(){
           );
 
 
-        render(items);
+        render(
+          items
+        );
 
-        queueAnnouncements(items);
+
+        queueAnnouncements(
+          items
+        );
+
 
         updateTodayCount();
 
@@ -1336,7 +1581,9 @@ function subscribe(){
 
       err=>{
 
-        console.error(err);
+        console.error(
+          err
+        );
 
 
         showConnectionStatus(
@@ -1361,6 +1608,13 @@ function subscribe(){
 */
 async function updateTodayCount(){
 
+  if(!db){
+
+    return;
+
+  }
+
+
   try{
 
     const d =
@@ -1377,7 +1631,10 @@ async function updateTodayCount(){
 
     const q =
       query(
-        collection(db,'calls'),
+        collection(
+          db,
+          'calls'
+        ),
         where(
           'createdAt',
           '>=',
@@ -1387,7 +1644,9 @@ async function updateTodayCount(){
 
 
     const result =
-      await getCountFromServer(q);
+      await getCountFromServer(
+        q
+      );
 
 
     todayCount.textContent =
@@ -1398,7 +1657,9 @@ async function updateTodayCount(){
 
   }catch(e){
 
-    console.error(e);
+    console.error(
+      e
+    );
 
 
     todayCount.textContent =
@@ -1415,24 +1676,34 @@ async function updateTodayCount(){
 */
 function enableAudio(){
 
-  audioEnabled = true;
+  if(audioEnabled){
+
+    return;
+
+  }
+
+
+  audioEnabled =
+    true;
 
 
   audioState.textContent =
     'مفعل';
 
 
-  document.getElementById(
-    'enableAudio'
-  ).textContent =
+  enableAudioButton.textContent =
     '🔊 الصوت مفعل';
 
 
-  document.getElementById(
-    'enableAudio'
-  ).disabled = true;
+  enableAudioButton.disabled =
+    true;
 
 
+  /*
+    رسالة اختبار صغيرة لضمان أن
+    المتصفح سمح بتشغيل الصوت بعد
+    تفاعل المستخدم.
+  */
   if('speechSynthesis' in window){
 
     const u =
@@ -1441,12 +1712,16 @@ function enableAudio(){
       );
 
 
-    u.lang = 'ar-EG';
+    u.lang =
+      'ar-EG';
 
-    u.volume = .7;
+    u.volume =
+      .7;
 
 
-    window.speechSynthesis.speak(u);
+    window.speechSynthesis.speak(
+      u
+    );
 
   }
 
@@ -1457,8 +1732,8 @@ function enableAudio(){
 
 
   /*
-    إذا كان هناك طلب جديد وصل قبل
-    تفعيل الصوت، يبدأ الطابور الآن.
+    الآن يتم تشغيل أي طلبات كانت
+    وصلت قبل تفعيل الصوت.
   */
   drainQueue();
 
@@ -1466,62 +1741,87 @@ function enableAudio(){
 
 
 
-document
-  .getElementById('enableAudio')
-  .addEventListener(
-    'click',
-    enableAudio
-);
+/*
+  تسجيل الخروج وتنظيف جلسة الصوت.
+*/
+async function logout(){
 
+  try{
+
+    if(unsubscribe){
+
+      unsubscribe();
+
+      unsubscribe =
+        null;
+
+    }
+
+
+    queue =
+      [];
+
+    seenIds =
+      new Set();
+
+    cancelledIds.clear();
+
+
+    currentAnnouncementId =
+      null;
+
+
+    audioBusy =
+      false;
+
+
+    if('speechSynthesis' in window){
+
+      window.speechSynthesis.cancel();
+
+    }
+
+
+    await signOut(
+      auth
+    );
+
+
+  }catch(e){
+
+    console.error(
+      e
+    );
+
+
+    toast(
+      'تعذر تسجيل الخروج.'
+    );
+
+  }
+
+}
+
+
+
+enableAudioButton.addEventListener(
+  'click',
+  enableAudio
+);
 
 
 document
   .getElementById('logout')
   .addEventListener(
     'click',
-    async ()=>{
-
-      try{
-
-        if(unsubscribe){
-
-          unsubscribe();
-
-          unsubscribe = null;
-
-        }
-
-
-        queue = [];
-
-        cancelledTables.clear();
-
-
-        if('speechSynthesis' in window){
-
-          window.speechSynthesis.cancel();
-
-        }
-
-
-        await signOut(auth);
-
-      }catch(e){
-
-        console.error(e);
-
-
-        toast(
-          'تعذر تسجيل الخروج.'
-        );
-
-      }
-
-    }
+    logout
 );
 
 
 
+/*
+  تسجيل الدخول.
+*/
 document
   .getElementById('loginForm')
   .addEventListener(
@@ -1550,7 +1850,8 @@ document
           .value;
 
 
-      err.textContent = '';
+      err.textContent =
+        '';
 
 
       if(!email){
@@ -1593,7 +1894,8 @@ document
       }
 
 
-      loginButton.disabled = true;
+      loginButton.disabled =
+        true;
 
       loginButton.textContent =
         'جاري الدخول...';
@@ -1608,15 +1910,20 @@ document
         );
 
 
-        err.textContent = '';
+        err.textContent =
+          '';
 
 
       }catch(x){
 
-        console.error(x);
+        console.error(
+          x
+        );
 
 
-        switch(x.code){
+        switch(
+          x.code
+        ){
 
           case 'auth/invalid-credential':
 
@@ -1655,7 +1962,8 @@ document
 
       }finally{
 
-        loginButton.disabled = false;
+        loginButton.disabled =
+          false;
 
         loginButton.textContent =
           'دخول';
@@ -1663,22 +1971,31 @@ document
       }
 
     }
-);
+  );
 
 
 
+/*
+  تهيئة Firebase.
+*/
 try{
 
   const app =
-    initializeApp(firebaseConfig);
+    initializeApp(
+      firebaseConfig
+    );
 
 
   db =
-    getFirestore(app);
+    getFirestore(
+      app
+    );
 
 
   auth =
-    getAuth(app);
+    getAuth(
+      app
+    );
 
 
   onAuthStateChanged(
@@ -1705,6 +2022,26 @@ try{
         subscribe();
 
 
+        /*
+          إعادة ضبط حالة زر الصوت عند
+          بدء جلسة Dashboard جديدة.
+        */
+        audioEnabled =
+          false;
+
+        audioBusy =
+          false;
+
+        enableAudioButton.disabled =
+          false;
+
+        enableAudioButton.textContent =
+          '🔊 تفعيل الصوت';
+
+        audioState.textContent =
+          'غير مفعل';
+
+
       }else{
 
         dashboard.style.display =
@@ -1719,18 +2056,27 @@ try{
 
           unsubscribe();
 
-          unsubscribe = null;
+          unsubscribe =
+            null;
 
         }
 
 
-        queue = [];
+        queue =
+          [];
 
-        cancelledTables.clear();
+        seenIds =
+          new Set();
+
+        cancelledIds.clear();
 
 
-        currentAnnouncementTable =
+        currentAnnouncementId =
           null;
+
+
+        audioBusy =
+          false;
 
 
         if('speechSynthesis' in window){
@@ -1747,7 +2093,9 @@ try{
 
 }catch(e){
 
-  console.error(e);
+  console.error(
+    e
+  );
 
 
   document.getElementById(
@@ -1756,30 +2104,6 @@ try{
     'تعذر تهيئة النظام. تحقق من إعداد Firebase.';
 
 }
-
-
-
-/*
-  تحديث عرض عمر الطلبات بشكل دوري.
-*/
-setInterval(()=>{
-
-  document
-    .querySelectorAll('.request')
-    .forEach(request=>{
-
-      /*
-        لا نعيد تحميل Firestore هنا.
-        الـSnapshot هو المسؤول عن البيانات.
-      */
-
-      const id =
-        request.dataset.id;
-
-    });
-
-},10000);
-
 
 </script>
 
