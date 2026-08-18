@@ -357,9 +357,16 @@
     const cooldownKey =
       `mazzeka:last-call:${table}`;
 
-    const COOLDOWN_SECONDS = 30;
+    const COOLDOWN_SECONDS =
+      30;
 
     let db = null;
+
+    /*
+      يحتفظ بالـ interval الحالي للعداد
+      حتى لا يتم إنشاء أكثر من عداد في نفس الوقت.
+    */
+    let cooldownInterval = null;
 
 
     function render(){
@@ -489,6 +496,12 @@
       const el =
         document.getElementById('message');
 
+      if(!el){
+
+        return;
+
+      }
+
       el.textContent = text;
 
       el.className =
@@ -496,7 +509,16 @@
     }
 
 
-    function setCooldown(seconds){
+    /*
+      تحديث واجهة العداد فقط.
+
+      مهم:
+      هذه الدالة لا تعدّل localStorage.
+      وقت الانتهاء يتم تخزينه مرة واحدة فقط.
+    */
+    function updateCooldownDisplay(
+      seconds
+    ){
 
       const btn =
         document.getElementById('callBtn');
@@ -506,6 +528,13 @@
 
       const timer =
         document.getElementById('timer');
+
+
+      if(!btn || !box || !timer){
+
+        return;
+
+      }
 
 
       if(seconds <= 0){
@@ -519,6 +548,7 @@
         );
 
         return;
+
       }
 
 
@@ -528,19 +558,98 @@
 
       timer.textContent =
         `00:${String(seconds).padStart(2,'0')}`;
+    }
+
+
+    /*
+      بدء عداد جديد.
+
+      يتم حفظ وقت الانتهاء مرة واحدة فقط،
+      ثم يتم تحديث الشاشة اعتمادًا على هذا الوقت.
+    */
+    function startCooldown(
+      seconds
+    ){
+
+      if(cooldownInterval !== null){
+
+        clearInterval(
+          cooldownInterval
+        );
+
+        cooldownInterval = null;
+
+      }
+
+
+      const until =
+        Date.now() +
+        seconds * 1000;
 
 
       localStorage.setItem(
         cooldownKey,
-        String(
-          Date.now() +
-          seconds * 1000
-        )
+        String(until)
       );
+
+
+      updateCooldownDisplay(
+        seconds
+      );
+
+
+      cooldownInterval =
+        setInterval(()=>{
+
+          const remainingMs =
+            until - Date.now();
+
+
+          const remainingSeconds =
+            Math.ceil(
+              remainingMs / 1000
+            );
+
+
+          if(remainingSeconds <= 0){
+
+            clearInterval(
+              cooldownInterval
+            );
+
+            cooldownInterval = null;
+
+            updateCooldownDisplay(0);
+
+            return;
+
+          }
+
+
+          updateCooldownDisplay(
+            remainingSeconds
+          );
+
+        },250);
     }
 
 
+    /*
+      استعادة العداد بعد Refresh أو
+      فتح الصفحة مرة أخرى.
+    */
     function restoreCooldown(){
+
+      if(cooldownInterval !== null){
+
+        clearInterval(
+          cooldownInterval
+        );
+
+        cooldownInterval = null;
+
+      }
+
 
       const until =
         Number(
@@ -550,42 +659,62 @@
         );
 
 
-      if(until <= Date.now()){
+      if(!Number.isFinite(until) ||
+         until <= Date.now()){
 
         localStorage.removeItem(
           cooldownKey
         );
 
+        updateCooldownDisplay(0);
+
         return;
+
       }
 
 
-      let left =
+      const remainingSeconds =
         Math.ceil(
           (until - Date.now()) / 1000
         );
 
 
-      setCooldown(left);
+      updateCooldownDisplay(
+        remainingSeconds
+      );
 
 
-      const id =
+      cooldownInterval =
         setInterval(()=>{
 
-          left =
+          const remainingMs =
+            until - Date.now();
+
+
+          const remaining =
             Math.ceil(
-              (until - Date.now()) / 1000
+              remainingMs / 1000
             );
 
 
-          setCooldown(left);
+          if(remaining <= 0){
 
+            clearInterval(
+              cooldownInterval
+            );
 
-          if(left <= 0){
+            cooldownInterval = null;
 
-            clearInterval(id);
+            updateCooldownDisplay(0);
+
+            return;
 
           }
+
+
+          updateCooldownDisplay(
+            remaining
+          );
 
         },250);
     }
@@ -597,7 +726,7 @@
         document.getElementById('callBtn');
 
 
-      if(btn.disabled){
+      if(!btn || btn.disabled){
 
         return;
       }
@@ -644,7 +773,7 @@
         );
 
 
-        setCooldown(
+        startCooldown(
           COOLDOWN_SECONDS
         );
 
@@ -666,11 +795,40 @@
     }
 
 
+    /*
+      تنظيف العداد عند مغادرة الصفحة.
+    */
+    window.addEventListener(
+      'beforeunload',
+      ()=>{
+
+        if(cooldownInterval !== null){
+
+          clearInterval(
+            cooldownInterval
+          );
+
+          cooldownInterval = null;
+
+        }
+
+      }
+    );
+
+
     try{
 
+      const firebaseApp =
+        initializeApp(
+          firebaseConfig
+        );
+
+
       db =
-        initializeApp(firebaseConfig) &&
-        getFirestore();
+        getFirestore(
+          firebaseApp
+        );
+
 
       render();
 
